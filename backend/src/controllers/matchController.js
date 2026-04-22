@@ -132,8 +132,99 @@ const shortlistCandidate = async (req, res) => {
   }
 };
 
+const sendShortlistEmailForMatch = async (req, res) => {
+  try {
+    const match = await Match.findById(req.params.matchId).populate('candidateId').populate('jobId');
+
+    if (!match) {
+      return res.status(404).json({ message: 'Match not found' });
+    }
+
+    if (String(match.jobId.createdBy) !== String(req.user._id)) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
+    await sendShortlistEmail({
+      to: match.candidateId.email,
+      candidateName: match.candidateId.name,
+      jobTitle: match.jobId.title,
+      score: match.matchScore,
+    });
+
+    match.shortlisted = true;
+    match.shortlistedAt = match.shortlistedAt || new Date();
+    match.shortlistEmailStatus = 'sent';
+    match.shortlistEmailError = '';
+    await match.save();
+
+    return res.json({
+      message: 'Shortlist email sent successfully',
+      match,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to send shortlist email', error: error.message });
+  }
+};
+
+const emailAllShortlistedForJob = async (req, res) => {
+  try {
+    const job = await Job.findOne({ _id: req.params.jobId, createdBy: req.user._id });
+
+    if (!job) {
+      return res.status(404).json({ message: 'Job not found' });
+    }
+
+    const matches = await Match.find({ jobId: job._id, shortlisted: true })
+      .populate('candidateId')
+      .populate('jobId');
+
+    if (!matches.length) {
+      return res.status(400).json({ message: 'No shortlisted candidates found for this job' });
+    }
+
+    let sentCount = 0;
+    let failedCount = 0;
+
+    await Promise.all(
+      matches.map(async (match) => {
+        try {
+          await sendShortlistEmail({
+            to: match.candidateId.email,
+            candidateName: match.candidateId.name,
+            jobTitle: match.jobId.title,
+            score: match.matchScore,
+          });
+
+          match.shortlistEmailStatus = 'sent';
+          match.shortlistEmailError = '';
+          sentCount += 1;
+        } catch (error) {
+          match.shortlistEmailStatus = 'failed';
+          match.shortlistEmailError = error.message;
+          failedCount += 1;
+        }
+
+        await match.save();
+      }),
+    );
+
+    return res.json({
+      message: 'Bulk shortlist email process completed',
+      sentCount,
+      failedCount,
+      total: matches.length,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: 'Failed to send shortlist emails', error: error.message });
+  }
+};
+
 module.exports = {
   runMatchForJob,
   getMatchesForJob,
   shortlistCandidate,
+  sendShortlistEmailForMatch,
+  emailAllShortlistedForJob,
 };

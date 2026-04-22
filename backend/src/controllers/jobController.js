@@ -1,4 +1,5 @@
 const Job = require('../models/Job');
+const Match = require('../models/Match');
 const { normalizeText } = require('../utils/skills');
 
 const parseSkillInput = (requiredSkills = []) =>
@@ -36,7 +37,27 @@ const getJobs = async (req, res) => {
   }
 };
 
+const deleteJob = async (req, res) => {
+  try {
+    const job = await Job.findOneAndDelete({
+      _id: req.params.jobId,
+      createdBy: req.user._id,
+    });
+
+    if (!job) {
+      return res.status(404).json({ message: 'Job not found' });
+    }
+
+    await Match.deleteMany({ jobId: job._id });
+
+    return res.json({ message: 'Job deleted successfully' });
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to delete job', error: error.message });
+  }
+};
+
 module.exports = {
   createJob,
   getJobs,
+  deleteJob,
 };

@@ -76,7 +76,9 @@ const getCandidateProfile = async (req, res) => {
       return res.status(404).json({ message: 'Candidate not found' });
     }
 
-    const matches = await Match.find({ candidateId: candidate._id }).sort({ matchScore: -1 });
+    const matches = await Match.find({ candidateId: candidate._id })
+      .populate('jobId', 'title requiredSkills createdAt')
+      .sort({ matchScore: -1 });
 
     return res.json({
       candidate: toCandidateResponse(candidate),

@@ -1,16 +1,22 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import App from './app/App.jsx';
-import { AuthProvider } from './context/AuthContext.jsx';
-import './styles/theme.css';
+import AppRouter from './routes/AppRouter';
+import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './components/ui/Toast';
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
+import './styles/global.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <ToastProvider>
+            <AppRouter />
+          </ToastProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   </StrictMode>,
 );
