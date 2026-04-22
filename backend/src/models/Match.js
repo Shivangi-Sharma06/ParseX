@@ -22,6 +22,23 @@ const matchSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    shortlisted: {
+      type: Boolean,
+      default: false,
+    },
+    shortlistedAt: {
+      type: Date,
+      default: null,
+    },
+    shortlistEmailStatus: {
+      type: String,
+      enum: ['not_sent', 'sent', 'failed'],
+      default: 'not_sent',
+    },
+    shortlistEmailError: {
+      type: String,
+      default: '',
+    },
   },
   {
     timestamps: true,

@@ -2,6 +2,18 @@ const Candidate = require('../models/Candidate');
 const Job = require('../models/Job');
 const Match = require('../models/Match');
 const { calculateMatch } = require('../services/matchingService');
+const { sendShortlistEmail } = require('../services/emailService');
+
+const toResultItem = ({ matchDoc, candidate, job }) => ({
+  _id: matchDoc._id,
+  candidate,
+  job,
+  matchScore: matchDoc.matchScore,
+  matchedSkills: matchDoc.matchedSkills,
+  shortlisted: matchDoc.shortlisted,
+  shortlistedAt: matchDoc.shortlistedAt,
+  shortlistEmailStatus: matchDoc.shortlistEmailStatus,
+});
 
 const runMatchForJob = async (req, res) => {
   try {
@@ -35,13 +47,7 @@ const runMatchForJob = async (req, res) => {
           },
         );
 
-        return {
-          _id: matchDoc._id,
-          candidate,
-          job,
-          matchScore: score,
-          matchedSkills,
-        };
+        return toResultItem({ matchDoc, candidate, job });
       }),
     );
 
@@ -65,17 +71,15 @@ const getMatchesForJob = async (req, res) => {
       return res.status(404).json({ message: 'Job not found' });
     }
 
-    const matches = await Match.find({ jobId: job._id })
-      .populate('candidateId')
-      .sort({ matchScore: -1 });
+    const matches = await Match.find({ jobId: job._id }).populate('candidateId').sort({ matchScore: -1 });
 
-    const results = matches.map((match) => ({
-      _id: match._id,
-      candidate: match.candidateId,
-      job,
-      matchScore: match.matchScore,
-      matchedSkills: match.matchedSkills,
-    }));
+    const results = matches.map((match) =>
+      toResultItem({
+        matchDoc: match,
+        candidate: match.candidateId,
+        job,
+      }),
+    );
 
     return res.json({
       job,
@@ -87,7 +91,49 @@ const getMatchesForJob = async (req, res) => {
   }
 };
 
+const shortlistCandidate = async (req, res) => {
+  try {
+    const match = await Match.findById(req.params.matchId).populate('candidateId').populate('jobId');
+
+    if (!match) {
+      return res.status(404).json({ message: 'Match not found' });
+    }
+
+    if (String(match.jobId.createdBy) !== String(req.user._id)) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
+    match.shortlisted = true;
+    match.shortlistedAt = new Date();
+
+    try {
+      await sendShortlistEmail({
+        to: match.candidateId.email,
+        candidateName: match.candidateId.name,
+        jobTitle: match.jobId.title,
+        score: match.matchScore,
+      });
+
+      match.shortlistEmailStatus = 'sent';
+      match.shortlistEmailError = '';
+    } catch (emailError) {
+      match.shortlistEmailStatus = 'failed';
+      match.shortlistEmailError = emailError.message;
+    }
+
+    await match.save();
+
+    return res.json({
+      message: 'Candidate shortlisted',
+      match,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to shortlist candidate', error: error.message });
+  }
+};
+
 module.exports = {
   runMatchForJob,
   getMatchesForJob,
+  shortlistCandidate,
 };

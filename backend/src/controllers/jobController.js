@@ -1,9 +1,8 @@
 const Job = require('../models/Job');
 const { normalizeText } = require('../utils/skills');
 
-const parseSkillInput = (requiredSkills = '') =>
-  String(requiredSkills)
-    .split(',')
+const parseSkillInput = (requiredSkills = []) =>
+  (Array.isArray(requiredSkills) ? requiredSkills : String(requiredSkills).split(','))
     .map((skill) => normalizeText(skill).replace(/\s+/g, ''))
     .filter(Boolean);
 

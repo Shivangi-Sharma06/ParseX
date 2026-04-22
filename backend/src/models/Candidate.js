@@ -38,6 +38,38 @@ const candidateSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    aiAnalysis: {
+      summary: {
+        type: String,
+        default: '',
+      },
+      strengths: {
+        type: [String],
+        default: [],
+      },
+      concerns: {
+        type: [String],
+        default: [],
+      },
+      recommendation: {
+        type: String,
+        default: '',
+      },
+      confidence: {
+        type: Number,
+        min: 0,
+        max: 100,
+        default: 0,
+      },
+      generatedAt: {
+        type: Date,
+      },
+      source: {
+        type: String,
+        enum: ['openai', 'heuristic'],
+        default: 'heuristic',
+      },
+    },
   },
   {
     timestamps: true,
