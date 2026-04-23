@@ -2,11 +2,11 @@ import { cn } from '../../utils/cn';
 
 export function Badge({ className, tone = 'default', ...props }) {
   const toneClass = {
-    default: 'border-line bg-white/5 text-white',
-    success: 'border-success/40 bg-success/10 text-success',
-    danger: 'border-danger/40 bg-danger/10 text-danger',
-    info: 'border-info/40 bg-info/10 text-info',
-    accent: 'border-accentStart/40 bg-accentStart/15 text-purple-200',
+    default: 'border-line bg-[#fff0c214] text-[#ffe7ba]',
+    success: 'border-success/45 bg-success/15 text-success',
+    danger: 'border-danger/45 bg-danger/15 text-danger',
+    info: 'border-info/45 bg-info/15 text-info',
+    accent: 'border-accentStart/40 bg-accentStart/15 text-[#ffe295]',
   }[tone];
 
   return (

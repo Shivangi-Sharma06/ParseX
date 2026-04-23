@@ -4,24 +4,24 @@ export default {
   theme: {
     extend: {
       colors: {
-        base: '#0A0F1E',
-        surface: '#0F1629',
-        card: '#1E293B',
-        muted: '#94A3B8',
-        line: 'rgba(255,255,255,0.08)',
-        accentStart: '#7C3AED',
-        accentEnd: '#2563EB',
-        success: '#22C55E',
-        danger: '#EF4444',
-        info: '#3B82F6',
+        base: '#090806',
+        surface: '#1A1712',
+        card: '#221D15',
+        muted: '#C9B89A',
+        line: 'rgba(255, 232, 189, 0.18)',
+        accentStart: '#ffa110',
+        accentEnd: '#fa520f',
+        success: '#8EDB8B',
+        danger: '#FF8A66',
+        info: '#FFD06A',
       },
       borderRadius: {
-        xl2: '1rem',
+        xl2: '0.45rem',
       },
       boxShadow: {
-        clay: '8px 8px 24px rgba(4,8,20,0.65), -8px -8px 22px rgba(37,50,84,0.22)',
-        'clay-sm': '4px 4px 12px rgba(3,7,18,0.58), -3px -3px 10px rgba(32,44,77,0.2)',
-        glow: '0 0 0 1px rgba(124,58,237,0.32), 0 12px 28px rgba(37,99,235,0.22)',
+        clay: '-8px 16px 39px rgba(127, 99, 21, 0.12), -33px 64px 72px rgba(127, 99, 21, 0.1), -73px 144px 97px rgba(127, 99, 21, 0.06)',
+        'clay-sm': '-4px 10px 24px rgba(127, 99, 21, 0.14)',
+        glow: '0 0 0 1px rgba(255, 161, 16, 0.35), 0 14px 30px rgba(250, 82, 15, 0.25)',
       },
       animation: {
         float: 'float 6s ease-in-out infinite',

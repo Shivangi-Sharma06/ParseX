@@ -1,28 +1,48 @@
 import { useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Bell, Menu, Shield, UserCircle2, X } from 'lucide-react';
 import { NAV_LINKS } from '../../utils/constants';
 import { useAuth } from '../../hooks/useAuth';
 import { Button } from '../ui/Button';
 import { cn } from '../../utils/cn';
 
+const PUBLIC_SECTIONS = [
+  { label: 'Home', id: 'home' },
+  { label: 'How It Works', id: 'how-it-works' },
+  { label: 'Features', id: 'features' },
+  { label: 'Testimonials', id: 'testimonials' },
+  { label: 'Contact', id: 'cta' },
+];
+
 export function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const isPublicLanding = !isAuthenticated && location.pathname === '/';
 
   const onLogout = () => {
     logout();
     navigate('/login');
   };
 
+  const scrollToSection = (id) => {
+    const target = document.getElementById(id);
+    if (!target) {
+      navigate(`/#${id}`);
+      return;
+    }
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.history.replaceState(null, '', `#${id}`);
+  };
+
   return (
-    <header className="fixed inset-x-0 top-0 z-40 border-b border-line bg-base/95">
+    <header className="fixed inset-x-0 top-0 z-40 border-b border-white/10 bg-black/65 backdrop-blur-xl">
       <div className="section-wrap flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <Shield className="h-5 w-5 text-accentStart" />
-          <span className="text-lg font-bold gradient-text">ResumeIQ</span>
+          <Shield className="h-5 w-5 text-[#cfb38a]" />
+          <span className="text-lg font-bold text-white">ResumeIQ</span>
         </Link>
 
         {isAuthenticated ? (
@@ -34,7 +54,7 @@ export function Navbar() {
                 className={({ isActive }) =>
                   cn(
                     'border-b-2 border-transparent pb-1 text-sm text-muted transition-colors hover:text-white',
-                    isActive && 'border-accentStart text-white',
+                    isActive && 'border-[#cfb38a] text-white',
                   )
                 }
               >
@@ -44,14 +64,32 @@ export function Navbar() {
           </nav>
         ) : null}
 
+        {isPublicLanding ? (
+          <nav className="hidden items-center gap-6 md:flex">
+            {PUBLIC_SECTIONS.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => scrollToSection(item.id)}
+                className="text-sm text-muted transition-colors hover:text-white"
+              >
+                {item.label}
+              </button>
+            ))}
+          </nav>
+        ) : null}
+
         <div className="hidden items-center gap-2 md:flex">
           {!isAuthenticated ? (
             <>
               <Link to="/login">
-                <Button variant="ghost">Login</Button>
+                <Button variant="ghost" className="border-white/20 bg-white/[0.03] hover:bg-white/[0.08]">
+                  Login
+                </Button>
               </Link>
               <Link to="/register">
-                <Button variant="gradient">Get Started</Button>
+                <Button variant="gradient" className="border-0 bg-white text-black hover:bg-white/90 hover:shadow-none">
+                  Get Started
+                </Button>
               </Link>
             </>
           ) : (
@@ -96,7 +134,7 @@ export function Navbar() {
       </div>
 
       {mobileOpen ? (
-        <div className="border-t border-line bg-surface md:hidden">
+        <div className="border-t border-white/10 bg-[#080808]/95 md:hidden">
           <div className="section-wrap flex flex-col gap-2 py-3">
             {isAuthenticated
               ? NAV_LINKS.map((link) => (
@@ -109,16 +147,29 @@ export function Navbar() {
                     {link.label}
                   </NavLink>
                 ))
-              : null}
+              : isPublicLanding
+                ? PUBLIC_SECTIONS.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        scrollToSection(item.id);
+                        setMobileOpen(false);
+                      }}
+                      className="rounded-lg px-3 py-2 text-left text-sm text-muted hover:bg-white/5 hover:text-white"
+                    >
+                      {item.label}
+                    </button>
+                  ))
+                : null}
             {!isAuthenticated ? (
               <>
                 <Link to="/login" onClick={() => setMobileOpen(false)}>
-                  <Button className="w-full" variant="ghost">
+                  <Button className="w-full border-white/20 bg-white/[0.03]" variant="ghost">
                     Login
                   </Button>
                 </Link>
                 <Link to="/register" onClick={() => setMobileOpen(false)}>
-                  <Button className="w-full" variant="gradient">
+                  <Button className="w-full border-0 bg-white text-black hover:bg-white/90" variant="gradient">
                     Get Started
                   </Button>
                 </Link>

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Space+Grotesk:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,9 +9,17 @@
     color-scheme: dark;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-base text-white antialiased;
-    font-family: 'Inter', 'Geist Sans', ui-sans-serif, system-ui, sans-serif;
+    font-family: Arial, 'Manrope', ui-sans-serif, system-ui, sans-serif;
+    background-image: radial-gradient(circle at 10% 10%, rgba(255, 161, 16, 0.15), transparent 28%),
+      radial-gradient(circle at 88% 6%, rgba(255, 217, 0, 0.09), transparent 25%),
+      linear-gradient(180deg, #13100b 0%, #0f0c08 45%, #090806 100%);
+    min-height: 100vh;
   }
 
   * {
@@ -19,7 +29,7 @@
 
 @layer components {
   .clay-panel {
-    @apply rounded-2xl border border-line bg-surface/90 shadow-clay;
+    @apply rounded-xl2 border border-line bg-surface/95 shadow-clay;
   }
 
   .section-wrap {
@@ -27,15 +37,41 @@
   }
 
   .gradient-text {
-    @apply bg-gradient-to-r from-accentStart to-accentEnd bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-[#ffd900] via-[#ffa110] to-[#fa520f] bg-clip-text text-transparent;
   }
 
   .dot-grid {
-    background-image: radial-gradient(rgba(124, 58, 237, 0.24) 1px, transparent 1px);
+    background-image: radial-gradient(rgba(255, 161, 16, 0.22) 1px, transparent 1px);
     background-size: 24px 24px;
   }
 
   .focus-ring {
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentStart focus-visible:ring-offset-2 focus-visible:ring-offset-base;
+  }
+
+  .hero-title {
+    font-family: Arial, 'Space Grotesk', sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.045em;
+  }
+
+  .hero-aura {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at 22% 8%, rgba(250, 82, 15, 0.24), transparent 32%),
+      radial-gradient(circle at 84% 18%, rgba(255, 217, 0, 0.13), transparent 28%);
+  }
+
+  .phone-shell {
+    @apply rounded-[1.2rem] border border-[#ffe29533] bg-[#191611] p-5 shadow-[0_20px_80px_rgba(58,38,6,0.62)];
+  }
+
+  .market-chip {
+    @apply rounded-xl2 border border-[#ffe29530] bg-[#211c14] p-4;
+  }
+
+  .feature-shell {
+    @apply rounded-xl2 border border-[#ffe2952f] bg-[#17140f];
   }
 }

@@ -36,18 +36,19 @@ export default function Register() {
   };
 
   return (
-    <PageMotion className="section-wrap grid min-h-[82vh] items-center py-10 lg:grid-cols-2">
-      <div className="hidden h-full rounded-2xl border border-line bg-gradient-to-br from-accentStart/25 to-accentEnd/15 p-8 lg:block">
-        <h1 className="text-4xl font-extrabold">Create your ResumeIQ account</h1>
-        <ul className="mt-8 space-y-4 text-muted">
-          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" />Resume parsing in seconds</li>
-          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" />AI-powered shortlist recommendations</li>
-          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" />Automated candidate communication</li>
+    <PageMotion className="section-wrap grid min-h-[82vh] items-center gap-5 py-10 lg:grid-cols-2">
+      <div className="hidden h-full rounded-xl2 border border-[#ffe29533] bg-[#17120d] p-8 lg:block">
+        <h1 className="text-4xl font-medium leading-tight text-[#ffe6b6]">Create your ResumeIQ account</h1>
+        <p className="mt-4 text-sm text-muted">Scale recruiting with a warm, confidence-first interface.</p>
+        <ul className="mt-8 space-y-4 text-[#ebd6ae]">
+          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-accentStart" />Upload and parse resumes in seconds</li>
+          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-accentStart" />Rank candidates with weighted skill matching</li>
+          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-accentStart" />Automate outreach with personalized emails</li>
         </ul>
       </div>
 
-      <Card className="mx-auto w-full max-w-lg">
-        <h2 className="text-2xl font-bold">Register</h2>
+      <Card className="mx-auto w-full max-w-lg border-[#ffe2952f] bg-[#15120d]">
+        <h2 className="text-2xl font-medium text-[#ffe9c4]">Register</h2>
         <p className="mt-1 text-sm text-muted">Start your free recruiter workspace</p>
 
         <form className="mt-6 space-y-4" onSubmit={onSubmit}>

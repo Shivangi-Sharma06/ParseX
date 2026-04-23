@@ -41,18 +41,19 @@ export default function Login() {
   };
 
   return (
-    <PageMotion className="section-wrap grid min-h-[82vh] items-center py-10 lg:grid-cols-2">
-      <div className="hidden h-full rounded-2xl border border-line bg-gradient-to-br from-accentStart/25 to-accentEnd/15 p-8 lg:block">
-        <h1 className="text-4xl font-extrabold">Welcome back to ResumeIQ</h1>
-        <ul className="mt-8 space-y-4 text-muted">
-          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" />AI-powered resume parsing</li>
-          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" />Smart candidate matching</li>
-          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" />Faster recruiter workflow</li>
+    <PageMotion className="section-wrap grid min-h-[82vh] items-center gap-5 py-10 lg:grid-cols-2">
+      <div className="hidden h-full rounded-xl2 border border-[#ffe29533] bg-[#17120d] p-8 lg:block">
+        <h1 className="text-4xl font-medium leading-tight text-[#ffe6b6]">Welcome back to ResumeIQ</h1>
+        <p className="mt-4 text-sm text-muted">Warm, bold, and declarative design for faster recruiter workflows.</p>
+        <ul className="mt-8 space-y-4 text-[#ebd6ae]">
+          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-accentStart" />Golden-amber UI consistency across every route</li>
+          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-accentStart" />AI-powered resume parsing and matching</li>
+          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-accentStart" />Single-flow experience with smooth navigation</li>
         </ul>
       </div>
 
-      <Card className="mx-auto w-full max-w-lg">
-        <h2 className="text-2xl font-bold">Login</h2>
+      <Card className="mx-auto w-full max-w-lg border-[#ffe2952f] bg-[#15120d]">
+        <h2 className="text-2xl font-medium text-[#ffe9c4]">Login</h2>
         <p className="mt-1 text-sm text-muted">Continue to your recruiter dashboard</p>
 
         <form className="mt-6 space-y-4" onSubmit={onSubmit}>
