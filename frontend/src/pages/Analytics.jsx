@@ -9,7 +9,6 @@ import { HistogramCard } from '../components/charts/HistogramCard';
 import { stableCount } from '../utils/score';
 
 const lineData = [
-  // TODO: replace with API call
   { name: 'Mon', value: 40 },
   { name: 'Tue', value: 58 },
   { name: 'Wed', value: 61 },
@@ -20,7 +19,6 @@ const lineData = [
 ];
 
 const barData = [
-  // TODO: replace with API call
   { name: 'React', value: 38 },
   { name: 'Node', value: 52 },
   { name: 'SQL', value: 30 },
@@ -29,7 +27,6 @@ const barData = [
 ];
 
 const histogramData = [
-  // TODO: replace with API call
   { range: '0-20', count: 8 },
   { range: '21-40', count: 16 },
   { range: '41-60', count: 24 },

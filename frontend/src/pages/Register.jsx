@@ -20,42 +20,42 @@ export default function Register() {
   const onSubmit = async (event) => {
     event.preventDefault();
     const nextErrors = {};
-    if (!form.username.trim()) nextErrors.username = 'Name is required';
-    if (!validateEmail(form.email)) nextErrors.email = 'Enter a valid email address';
-    if (!validatePassword(form.password)) nextErrors.password = 'Password must be at least 6 characters';
+    if (!form.username.trim()) nextErrors.username = 'Please add your full name.';
+    if (!validateEmail(form.email)) nextErrors.email = 'Please enter a valid email address.';
+    if (!validatePassword(form.password)) nextErrors.password = 'Please enter a valid password.';
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) return;
 
     try {
       await register(form);
-      push('Account created successfully', 'success');
-      navigate('/dashboard');
-    } catch (error) {
-      push(error.response?.data?.message || 'Registration failed', 'error');
+      push('Account created! Please log in.', 'success');
+      navigate('/login');
+    } catch {
+      push('Something went wrong. Try again.', 'error');
     }
   };
 
   return (
     <PageMotion className="section-wrap grid min-h-[82vh] items-center gap-5 py-10 lg:grid-cols-2">
-      <div className="hidden h-full rounded-xl2 border border-[#ffe29533] bg-[#17120d] p-8 lg:block">
-        <h1 className="text-4xl font-medium leading-tight text-[#ffe6b6]">Create your ResumeIQ account</h1>
-        <p className="mt-4 text-sm text-muted">Scale recruiting with a warm, confidence-first interface.</p>
-        <ul className="mt-8 space-y-4 text-[#ebd6ae]">
-          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-accentStart" />Upload and parse resumes in seconds</li>
-          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-accentStart" />Rank candidates with weighted skill matching</li>
-          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-accentStart" />Automate outreach with personalized emails</li>
+      <div className="clay-panel hidden h-full p-8 lg:block">
+        <h1 className="text-4xl font-semibold leading-tight text-ink">Create Your Account</h1>
+        <p className="mt-4 text-sm text-muted">Start parsing resumes and finding the best candidates in minutes.</p>
+        <ul className="mt-8 space-y-4 text-body">
+          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary" />Upload and parse resumes in seconds.</li>
+          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary" />Create role requirements with exact skill criteria.</li>
+          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary" />Rank candidates and move straight to shortlisting.</li>
         </ul>
       </div>
 
-      <Card className="mx-auto w-full max-w-lg border-[#ffe2952f] bg-[#15120d]">
-        <h2 className="text-2xl font-medium text-[#ffe9c4]">Register</h2>
-        <p className="mt-1 text-sm text-muted">Start your free recruiter workspace</p>
+      <Card className="mx-auto w-full max-w-lg">
+        <h2 className="text-2xl font-semibold text-ink">Create Your Account</h2>
+        <p className="mt-1 text-sm text-muted">Start parsing resumes and finding the best candidates in minutes.</p>
 
         <form className="mt-6 space-y-4" onSubmit={onSubmit}>
           <div>
             <Input
               type="text"
-              placeholder="Full name"
+              placeholder="Your full name"
               value={form.username}
               onChange={(event) => setForm((prev) => ({ ...prev, username: event.target.value }))}
               className={errors.username ? 'border-danger' : ''}
@@ -66,7 +66,7 @@ export default function Register() {
           <div>
             <Input
               type="email"
-              placeholder="Email"
+              placeholder="you@company.com"
               value={form.email}
               onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
               className={errors.email ? 'border-danger' : ''}
@@ -77,7 +77,7 @@ export default function Register() {
           <div className="relative">
             <Input
               type={show ? 'text' : 'password'}
-              placeholder="Password"
+              placeholder="Min 8 characters"
               value={form.password}
               onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
               className={errors.password ? 'border-danger pr-10' : 'pr-10'}
@@ -93,8 +93,12 @@ export default function Register() {
           </Button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-muted">or continue with Google</p>
-        <p className="mt-4 text-center text-sm text-muted">Already have an account? <Link to="/login" className="text-accentStart">Sign in</Link></p>
+        <p className="mt-4 text-center text-sm text-muted">
+          Already have an account?{' '}
+          <Link to="/login" className="text-primary hover:underline">
+            Log in
+          </Link>
+        </p>
       </Card>
     </PageMotion>
   );

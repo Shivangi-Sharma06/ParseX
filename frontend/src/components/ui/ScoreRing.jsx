@@ -19,7 +19,7 @@ export function ScoreRing({ score = 0, size = 'md' }) {
           cx="45"
           cy="45"
           r={radius}
-          className="fill-none stroke-accentStart"
+          className="fill-none stroke-primary"
           strokeWidth="8"
           strokeLinecap="round"
           strokeDasharray={circumference}

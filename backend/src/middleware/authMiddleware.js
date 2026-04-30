@@ -18,7 +18,13 @@ const authMiddleware = async (req, res, next) => {
       return res.status(401).json({ message: 'Unauthorized: user not found' });
     }
 
-    req.user = user;
+    req.user = {
+      id: String(user._id),
+      _id: user._id,
+      role: user.role,
+      username: user.username,
+      email: user.email,
+    };
     return next();
   } catch (error) {
     return res.status(401).json({ message: 'Unauthorized: invalid token' });

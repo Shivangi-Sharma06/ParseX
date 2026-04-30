@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Bell, Menu, Shield, UserCircle2, X } from 'lucide-react';
 import { NAV_LINKS } from '../../utils/constants';
 import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '../ui/Toast';
 import { Button } from '../ui/Button';
 import { cn } from '../../utils/cn';
 
@@ -16,6 +17,7 @@ const PUBLIC_SECTIONS = [
 
 export function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
+  const { push } = useToast();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -24,6 +26,7 @@ export function Navbar() {
 
   const onLogout = () => {
     logout();
+    push("You've been logged out.", 'info');
     navigate('/login');
   };
 
@@ -38,11 +41,11 @@ export function Navbar() {
   };
 
   return (
-    <header className="fixed inset-x-0 top-0 z-40 border-b border-white/10 bg-black/65 backdrop-blur-xl">
+    <header className="fixed inset-x-0 top-0 z-40 border-b border-line bg-base/70 backdrop-blur-xl">
       <div className="section-wrap flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-[#cfb38a]" />
-          <span className="text-lg font-bold text-white">ResumeIQ</span>
+          <span className="text-lg font-bold text-ink">ResumeIQ</span>
         </Link>
 
         {isAuthenticated ? (
@@ -53,8 +56,8 @@ export function Navbar() {
                 to={link.path}
                 className={({ isActive }) =>
                   cn(
-                    'border-b-2 border-transparent pb-1 text-sm text-muted transition-colors hover:text-white',
-                    isActive && 'border-[#cfb38a] text-white',
+                    'border-b-2 border-transparent pb-1 text-sm text-muted transition-colors hover:text-ink',
+                    isActive && 'border-primary text-ink',
                   )
                 }
               >
@@ -70,7 +73,7 @@ export function Navbar() {
               <button
                 key={item.id}
                 onClick={() => scrollToSection(item.id)}
-                className="text-sm text-muted transition-colors hover:text-white"
+                className="text-sm text-muted transition-colors hover:text-ink"
               >
                 {item.label}
               </button>
@@ -82,12 +85,12 @@ export function Navbar() {
           {!isAuthenticated ? (
             <>
               <Link to="/login">
-                <Button variant="ghost" className="border-white/20 bg-white/[0.03] hover:bg-white/[0.08]">
+                <Button variant="ghost" className="border-lineStrong bg-white/[0.03] hover:bg-white/[0.08]">
                   Login
                 </Button>
               </Link>
               <Link to="/register">
-                <Button variant="gradient" className="border-0 bg-white text-black hover:bg-white/90 hover:shadow-none">
+                <Button variant="gradient" className="border-0 hover:shadow-none">
                   Get Started
                 </Button>
               </Link>
@@ -134,7 +137,7 @@ export function Navbar() {
       </div>
 
       {mobileOpen ? (
-        <div className="border-t border-white/10 bg-[#080808]/95 md:hidden">
+        <div className="border-t border-line bg-base/95 md:hidden">
           <div className="section-wrap flex flex-col gap-2 py-3">
             {isAuthenticated
               ? NAV_LINKS.map((link) => (
@@ -142,7 +145,7 @@ export function Navbar() {
                     key={link.path}
                     to={link.path}
                     onClick={() => setMobileOpen(false)}
-                    className="rounded-lg px-3 py-2 text-sm text-muted hover:bg-white/5 hover:text-white"
+                    className="rounded-lg px-3 py-2 text-sm text-muted hover:bg-white/5 hover:text-ink"
                   >
                     {link.label}
                   </NavLink>
@@ -155,7 +158,7 @@ export function Navbar() {
                         scrollToSection(item.id);
                         setMobileOpen(false);
                       }}
-                      className="rounded-lg px-3 py-2 text-left text-sm text-muted hover:bg-white/5 hover:text-white"
+                      className="rounded-lg px-3 py-2 text-left text-sm text-muted hover:bg-white/5 hover:text-ink"
                     >
                       {item.label}
                     </button>
@@ -164,12 +167,12 @@ export function Navbar() {
             {!isAuthenticated ? (
               <>
                 <Link to="/login" onClick={() => setMobileOpen(false)}>
-                  <Button className="w-full border-white/20 bg-white/[0.03]" variant="ghost">
+                  <Button className="w-full border-lineStrong bg-white/[0.03]" variant="ghost">
                     Login
                   </Button>
                 </Link>
                 <Link to="/register" onClick={() => setMobileOpen(false)}>
-                  <Button className="w-full border-0 bg-white text-black hover:bg-white/90" variant="gradient">
+                  <Button className="w-full border-0" variant="gradient">
                     Get Started
                   </Button>
                 </Link>

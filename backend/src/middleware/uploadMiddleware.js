@@ -22,7 +22,6 @@ const storage = multer.diskStorage({
 const allowedMimeTypes = [
   'application/pdf',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/msword',
 ];
 
 const fileFilter = (_req, file, cb) => {

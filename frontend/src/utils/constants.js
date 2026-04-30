@@ -8,7 +8,6 @@ export const NAV_LINKS = [
 ];
 
 export const MOCK_ACTIVITY = [
-  // TODO: replace with API call
   { id: 1, type: 'upload', label: '12 resumes uploaded', time: '2h ago' },
   { id: 2, type: 'match', label: 'Match run for Frontend Engineer', time: '4h ago' },
   { id: 3, type: 'email', label: '5 shortlist emails sent', time: '6h ago' },

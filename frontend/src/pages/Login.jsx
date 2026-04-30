@@ -22,8 +22,8 @@ export default function Login() {
     event.preventDefault();
     const nextErrors = {};
 
-    if (!validateEmail(form.email)) nextErrors.email = 'Enter a valid email address';
-    if (!validatePassword(form.password)) nextErrors.password = 'Password must be at least 6 characters';
+    if (!validateEmail(form.email)) nextErrors.email = 'Please enter a valid email address.';
+    if (!validatePassword(form.password)) nextErrors.password = 'Please enter a valid password.';
 
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) return;
@@ -32,35 +32,36 @@ export default function Login() {
       await login(form);
       if (!remember) {
         localStorage.removeItem('authUser');
+        localStorage.removeItem('user');
       }
-      push('Login successful', 'success');
+      push('Welcome back!', 'success');
       navigate('/dashboard');
-    } catch (error) {
-      push(error.response?.data?.message || 'Login failed', 'error');
+    } catch {
+      push('Invalid email or password.', 'error');
     }
   };
 
   return (
     <PageMotion className="section-wrap grid min-h-[82vh] items-center gap-5 py-10 lg:grid-cols-2">
-      <div className="hidden h-full rounded-xl2 border border-[#ffe29533] bg-[#17120d] p-8 lg:block">
-        <h1 className="text-4xl font-medium leading-tight text-[#ffe6b6]">Welcome back to ResumeIQ</h1>
-        <p className="mt-4 text-sm text-muted">Warm, bold, and declarative design for faster recruiter workflows.</p>
-        <ul className="mt-8 space-y-4 text-[#ebd6ae]">
-          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-accentStart" />Golden-amber UI consistency across every route</li>
-          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-accentStart" />AI-powered resume parsing and matching</li>
-          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-accentStart" />Single-flow experience with smooth navigation</li>
+      <div className="clay-panel hidden h-full p-8 lg:block">
+        <h1 className="text-4xl font-semibold leading-tight text-ink">Welcome Back</h1>
+        <p className="mt-4 text-sm text-muted">Sign in to your recruiter account and continue your hiring pipeline.</p>
+        <ul className="mt-8 space-y-4 text-body">
+          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary" />Upload resumes and parse candidate data in seconds.</li>
+          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary" />Define job requirements and run matching instantly.</li>
+          <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary" />Shortlist top-ranked candidates with confidence.</li>
         </ul>
       </div>
 
-      <Card className="mx-auto w-full max-w-lg border-[#ffe2952f] bg-[#15120d]">
-        <h2 className="text-2xl font-medium text-[#ffe9c4]">Login</h2>
-        <p className="mt-1 text-sm text-muted">Continue to your recruiter dashboard</p>
+      <Card className="mx-auto w-full max-w-lg">
+        <h2 className="text-2xl font-semibold text-ink">Welcome Back</h2>
+        <p className="mt-1 text-sm text-muted">Sign in to your recruiter account.</p>
 
         <form className="mt-6 space-y-4" onSubmit={onSubmit}>
           <div>
             <Input
               type="email"
-              placeholder="Email"
+              placeholder="you@company.com"
               value={form.email}
               onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
               className={errors.email ? 'border-danger' : ''}
@@ -71,7 +72,7 @@ export default function Login() {
           <div className="relative">
             <Input
               type={show ? 'text' : 'password'}
-              placeholder="Password"
+              placeholder="Min 8 characters"
               value={form.password}
               onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
               className={errors.password ? 'border-danger pr-10' : 'pr-10'}
@@ -92,8 +93,12 @@ export default function Login() {
           </Button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-muted">or continue with Google</p>
-        <p className="mt-4 text-center text-sm text-muted">No account? <Link to="/register" className="text-accentStart">Create one</Link></p>
+        <p className="mt-4 text-center text-sm text-muted">
+          Don&apos;t have an account?{' '}
+          <Link to="/register" className="text-primary hover:underline">
+            Sign up
+          </Link>
+        </p>
       </Card>
     </PageMotion>
   );

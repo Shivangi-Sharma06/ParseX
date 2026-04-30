@@ -2,6 +2,8 @@ const Job = require('../models/Job');
 const Match = require('../models/Match');
 const { normalizeText } = require('../utils/skills');
 
+const getUserId = (req) => req.user?.id || req.user?._id;
+
 const parseSkillInput = (requiredSkills = []) =>
   (Array.isArray(requiredSkills) ? requiredSkills : String(requiredSkills).split(','))
     .map((skill) => normalizeText(skill).replace(/\s+/g, ''))
@@ -19,7 +21,7 @@ const createJob = async (req, res) => {
       title,
       description,
       requiredSkills: parseSkillInput(requiredSkills),
-      createdBy: req.user._id,
+      createdBy: getUserId(req),
     });
 
     return res.status(201).json({ message: 'Job created successfully', job });
@@ -30,10 +32,44 @@ const createJob = async (req, res) => {
 
 const getJobs = async (req, res) => {
   try {
-    const jobs = await Job.find({ createdBy: req.user._id }).sort({ createdAt: -1 });
+    const jobs = await Job.find({ createdBy: getUserId(req) }).sort({ createdAt: -1 });
     return res.json({ jobs });
   } catch (error) {
     return res.status(500).json({ message: 'Failed to fetch jobs', error: error.message });
+  }
+};
+
+const updateJob = async (req, res) => {
+  try {
+    const { title, description, requiredSkills } = req.body;
+    const parsedSkills = parseSkillInput(requiredSkills);
+
+    if (!title || !description || !parsedSkills.length) {
+      return res.status(400).json({ message: 'Title, description and required skills are required' });
+    }
+
+    const job = await Job.findOneAndUpdate(
+      {
+        _id: req.params.jobId,
+        createdBy: getUserId(req),
+      },
+      {
+        title,
+        description,
+        requiredSkills: parsedSkills,
+      },
+      {
+        new: true,
+      },
+    );
+
+    if (!job) {
+      return res.status(404).json({ message: 'Job not found' });
+    }
+
+    return res.json({ message: 'Job updated successfully', job });
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to update job', error: error.message });
   }
 };
 
@@ -41,7 +77,7 @@ const deleteJob = async (req, res) => {
   try {
     const job = await Job.findOneAndDelete({
       _id: req.params.jobId,
-      createdBy: req.user._id,
+      createdBy: getUserId(req),
     });
 
     if (!job) {
@@ -59,5 +95,6 @@ const deleteJob = async (req, res) => {
 module.exports = {
   createJob,
   getJobs,
+  updateJob,
   deleteJob,
 };

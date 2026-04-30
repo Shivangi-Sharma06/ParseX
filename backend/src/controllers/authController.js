@@ -83,7 +83,11 @@ const login = async (req, res) => {
 };
 
 const getProfile = async (req, res) => {
-  return res.json({ user: req.user });
+  try {
+    return res.json({ user: req.user });
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to load profile', error: error.message });
+  }
 };
 
 module.exports = {

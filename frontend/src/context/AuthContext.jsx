@@ -5,7 +5,7 @@ export const AuthContext = createContext(null);
 
 const initialState = {
   user: JSON.parse(localStorage.getItem('authUser') || 'null'),
-  token: localStorage.getItem('authToken') || '',
+  token: localStorage.getItem('authToken') || localStorage.getItem('token') || '',
   loading: false,
 };
 
@@ -29,12 +29,16 @@ export function AuthProvider({ children }) {
 
   const persist = (token, user) => {
     localStorage.setItem('authToken', token);
+    localStorage.setItem('token', token);
     localStorage.setItem('authUser', JSON.stringify(user));
+    localStorage.setItem('user', JSON.stringify(user));
   };
 
   const clear = () => {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('token');
     localStorage.removeItem('authUser');
+    localStorage.removeItem('user');
   };
 
   const login = useCallback(async (payload) => {
@@ -54,8 +58,7 @@ export function AuthProvider({ children }) {
     dispatch({ type: 'START' });
     try {
       const response = await authApi.register(payload);
-      persist(response.data.token, response.data.user);
-      dispatch({ type: 'LOGIN_SUCCESS', payload: response.data });
+      dispatch({ type: 'STOP' });
       return response.data;
     } catch (error) {
       dispatch({ type: 'STOP' });

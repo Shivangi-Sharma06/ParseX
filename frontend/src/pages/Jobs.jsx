@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Trash2 } from 'lucide-react';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useJobs } from '../hooks/useJobs';
 import { jobsApi } from '../api/jobs';
 import { Badge } from '../components/ui/Badge';
@@ -16,8 +16,15 @@ export default function Jobs() {
   const { jobs, refetch } = useJobs();
   const { push } = useToast();
   const [open, setOpen] = useState(false);
+  const [editingJobId, setEditingJobId] = useState('');
   const [skillInput, setSkillInput] = useState('');
   const [form, setForm] = useState({ title: '', description: '', requiredSkills: [], experienceRequired: '' });
+
+  const resetForm = () => {
+    setForm({ title: '', description: '', requiredSkills: [], experienceRequired: '' });
+    setSkillInput('');
+    setEditingJobId('');
+  };
 
   const addSkill = () => {
     const skill = skillInput.trim();
@@ -33,76 +40,138 @@ export default function Jobs() {
   };
 
   const onSave = async () => {
+    const payload = {
+      title: form.title,
+      description: form.description,
+      requiredSkills: form.requiredSkills,
+    };
+
     try {
-      await jobsApi.create({
-        title: form.title,
-        description: form.description,
-        requiredSkills: form.requiredSkills,
-      });
-      push('Job created successfully', 'success');
+      if (editingJobId) {
+        await jobsApi.update(editingJobId, payload);
+        push('Job updated successfully.', 'success');
+      } else {
+        await jobsApi.create(payload);
+        push('Job requirement saved.', 'success');
+      }
       setOpen(false);
-      setForm({ title: '', description: '', requiredSkills: [], experienceRequired: '' });
-      refetch();
-    } catch (error) {
-      push(error.response?.data?.message || 'Failed to create job', 'error');
+      resetForm();
+      await refetch();
+    } catch {
+      push('Failed to save job. Please try again.', 'error');
     }
   };
 
   const onDeleteJob = async (jobId) => {
     try {
       await jobsApi.remove(jobId);
-      push('Job deleted successfully', 'success');
+      push('Job removed.', 'success');
       refetch();
     } catch (error) {
-      push(error.response?.data?.message || 'Failed to delete job', 'error');
+      push(error.response?.data?.message || 'Something went wrong.', 'error');
     }
+  };
+
+  const onEditJob = (job) => {
+    setEditingJobId(job._id);
+    setForm({
+      title: job.title || '',
+      description: job.description || '',
+      requiredSkills: Array.isArray(job.requiredSkills) ? job.requiredSkills : [],
+      experienceRequired: '',
+    });
+    setOpen(true);
   };
 
   const jobsList = useMemo(() => jobs || [], [jobs]);
 
   return (
     <PageMotion className="section-wrap space-y-6 py-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Job Requirements</h1>
-        <Button variant="gradient" onClick={() => setOpen(true)}><Plus className="h-4 w-4" />Create New Job</Button>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-bold">Job Requirements</h1>
+          <p className="mt-1 text-sm text-muted">Define the skills and criteria for your open roles.</p>
+        </div>
+        <Button
+          variant="gradient"
+          onClick={() => {
+            resetForm();
+            setOpen(true);
+          }}
+        >
+          <Plus className="h-4 w-4" />
+          Add Job Requirement
+        </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {jobsList.map((job) => (
-          <Card key={job._id} className="hover:shadow-glow">
-            <CardHeader>
-              <CardTitle>{job.title}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex flex-wrap gap-1">
-                {(job.requiredSkills || []).map((skill) => <Badge key={skill}>{skill}</Badge>)}
-              </div>
-              <p className="text-sm text-muted">{job.description}</p>
-              <div className="flex items-center justify-between text-xs text-muted">
-                <span>{stableCount(job._id, 0, 20)} candidates matched</span>
-                <span>Active</span>
-              </div>
-              <div className="flex gap-2">
-                <Link to={`/jobs/${job._id}/match`} className="flex-1"><Button className="w-full">View Match</Button></Link>
-                <Button variant="danger" onClick={() => onDeleteJob(job._id)}><Trash2 className="h-4 w-4" /></Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {!jobsList.length ? (
+        <Card>
+          <CardContent className="rounded-xl border border-dashed border-line bg-base/50 p-8 text-center">
+            <p className="text-sm text-muted">No jobs posted yet. Create one to begin matching.</p>
+            <Button
+              className="mt-4"
+              variant="gradient"
+              onClick={() => {
+                resetForm();
+                setOpen(true);
+              }}
+            >
+              Add Job Requirement
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {jobsList.map((job) => (
+            <Card key={job._id} className="bg-surface/95 hover:shadow-glow">
+              <CardHeader>
+                <CardTitle>{job.title}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex flex-wrap gap-1">
+                  {(job.requiredSkills || []).map((skill) => <Badge key={skill}>{skill}</Badge>)}
+                </div>
+                <p className="text-sm text-muted">{job.description}</p>
+                <div className="flex items-center justify-between text-xs text-muted">
+                  <span>{stableCount(job._id, 0, 20)} candidates matched</span>
+                  <span>Active</span>
+                </div>
+                <div className="flex gap-2">
+                  <Link to={`/jobs/${job._id}/match`} className="flex-1"><Button className="w-full">Run Matching Engine</Button></Link>
+                  <Button variant="ghost" onClick={() => onEditJob(job)} aria-label="Edit Job">
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button variant="danger" onClick={() => onDeleteJob(job._id)}><Trash2 className="h-4 w-4" /></Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
-      <Dialog open={open} onClose={() => setOpen(false)} title="Create Job">
+      <Dialog
+        open={open}
+        onClose={() => {
+          setOpen(false);
+          resetForm();
+        }}
+        title={editingJobId ? 'Edit Job Requirement' : 'Add Job Requirement'}
+      >
         <div className="space-y-3">
-          <Input placeholder="Job Title" value={form.title} onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))} />
+          <Input
+            placeholder="e.g. Senior Frontend Engineer"
+            value={form.title}
+            onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
+          />
           <textarea
-            className="focus-ring min-h-24 w-full rounded-xl border border-line bg-base px-3 py-2 text-sm"
-            placeholder="Job Description"
+            className="field-surface min-h-24 px-3 py-2"
+            placeholder="Describe the role, responsibilities, and must-have qualifications."
             value={form.description}
             onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
           />
           <div className="flex gap-2">
             <Input
-              placeholder="Add skill and press Add"
+              placeholder="Add required skill and click Add"
               value={skillInput}
               onChange={(event) => setSkillInput(event.target.value)}
               onKeyDown={(event) => {
@@ -125,7 +194,9 @@ export default function Jobs() {
             value={form.experienceRequired}
             onChange={(event) => setForm((prev) => ({ ...prev, experienceRequired: event.target.value }))}
           />
-          <Button variant="gradient" className="w-full" onClick={onSave}>Save & Match</Button>
+          <Button variant="gradient" className="w-full" onClick={onSave}>
+            {editingJobId ? 'Save Job Updates' : 'Save Job Requirement'}
+          </Button>
         </div>
       </Dialog>
     </PageMotion>

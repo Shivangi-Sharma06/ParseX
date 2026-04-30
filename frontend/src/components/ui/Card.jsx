@@ -1,7 +1,7 @@
 import { cn } from '../../utils/cn';
 
 export function Card({ className, ...props }) {
-  return <div className={cn('clay-panel p-5', className)} {...props} />;
+  return <div className={cn('clay-card clay-hover p-5', className)} {...props} />;
 }
 
 export function CardHeader({ className, ...props }) {
@@ -9,7 +9,7 @@ export function CardHeader({ className, ...props }) {
 }
 
 export function CardTitle({ className, ...props }) {
-  return <h3 className={cn('text-lg font-medium text-white', className)} {...props} />;
+  return <h3 className={cn('text-lg font-medium text-ink', className)} {...props} />;
 }
 
 export function CardDescription({ className, ...props }) {

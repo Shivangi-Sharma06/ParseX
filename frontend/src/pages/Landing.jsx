@@ -1,90 +1,65 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  ArrowUpRight,
-  CircleDollarSign,
-  Euro,
-  Flame,
-  Palette,
-  PlayCircle,
-  ScanText,
-  Sparkles,
-  Square,
-  Type,
-} from 'lucide-react';
+import { ArrowUpRight, BriefcaseBusiness, ClipboardList, SearchCheck, ShieldCheck, Trophy, UploadCloud } from 'lucide-react';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/Card';
 import { PageMotion } from '../components/ui/PageMotion';
 
-const pillars = [
+const howItWorks = [
   {
-    n: '01',
-    icon: Palette,
-    title: 'Golden-Amber Color Universe',
-    desc: 'Warm Ivory (#fffaeb) through Mistral Orange (#fa520f), with no cool blue/purple accents.',
+    n: '1',
+    icon: UploadCloud,
+    title: 'Upload Resumes',
+    desc: 'Drop PDF or DOCX resumes into the system. We handle the rest.',
   },
   {
-    n: '02',
-    icon: Type,
-    title: 'Billboard Typography',
-    desc: 'Display headlines at 82px, line-height 1.0, and aggressive negative tracking for strong hierarchy.',
+    n: '2',
+    icon: ClipboardList,
+    title: 'Define Requirements',
+    desc: 'Enter the skills and qualifications you need for the role.',
   },
   {
-    n: '03',
-    icon: Sparkles,
-    title: 'Golden Shadow Depth',
-    desc: 'Multi-layer amber shadows create signature warm elevation and premium card presence.',
+    n: '3',
+    icon: Trophy,
+    title: 'Get Ranked Results',
+    desc: 'Candidates are scored and ranked. Shortlist with one click.',
   },
 ];
 
 const features = [
   {
-    icon: Flame,
-    badge: 'Primary',
-    title: 'Mistral Orange #fa520f',
-    desc: 'Core brand signal color for key calls to action and high-attention moments.',
+    icon: SearchCheck,
+    badge: 'Smart Parsing',
+    title: 'Smart Parsing',
+    desc: 'Extracts skills, education, and experience from any resume format.',
   },
   {
-    icon: Square,
-    badge: 'Gradient System',
-    title: 'Block Identity',
-    desc: 'Yellow (#ffd900) to Gold (#ffe295) to Amber (#ffa110) to Orange (#ff8105) to Flame (#fb6424).',
+    icon: SearchCheck,
+    badge: 'Skill Matching',
+    title: 'Skill Matching',
+    desc: 'Compares candidate profiles against your exact job requirements.',
   },
   {
-    icon: ScanText,
-    badge: 'Typography Rule',
-    title: 'Weight 400 Only',
-    desc: 'Hierarchy is created by size and spacing, not heavy font weights.',
+    icon: BriefcaseBusiness,
+    badge: 'Ranked Shortlists',
+    title: 'Ranked Shortlists',
+    desc: 'Candidates sorted by match score so you focus on the best.',
   },
   {
-    icon: ArrowUpRight,
-    badge: 'Geometry',
-    title: 'Sharp Corners',
-    desc: 'Near-zero radius and architectural edges keep the system crisp and declarative.',
+    icon: ShieldCheck,
+    badge: 'Secure Auth',
+    title: 'Secure Auth',
+    desc: 'JWT-protected access, your data stays yours.',
   },
 ];
 
-const contentBlocks = [
-  {
-    title: 'Do',
-    body: 'Use warm tones, uppercase CTAs, sharp geometry, amber shadows, and size-driven hierarchy.',
-  },
-  {
-    title: "Don't",
-    body: 'Avoid cool palettes, heavy weights, generic gray text, and rounded “soft app” corners.',
-  },
-  {
-    title: 'Responsive Behavior',
-    body: 'Desktop headline scale tapers from 82px to 56px to 48px and down to ~32px on mobile.',
-  },
-];
-
-const paletteSwatches = [
-  { icon: CircleDollarSign, label: 'Warm Ivory', value: '#fffaeb' },
-  { icon: Euro, label: 'Cream', value: '#fff0c2' },
-  { icon: Flame, label: 'Mistral Orange', value: '#fa520f' },
+const metrics = [
+  { value: '500+', label: 'Resumes Parsed' },
+  { value: '98%', label: 'Extraction Accuracy' },
+  { value: '10x', label: 'Faster Screening' },
+  { value: 'Built for', label: 'Modern Recruiters' },
 ];
 
 const MotionDiv = motion.div;
@@ -103,123 +78,112 @@ export default function Landing() {
   };
 
   return (
-    <PageMotion>
-      <section id="home" className="relative overflow-hidden pb-14 pt-6 sm:pt-10">
-        <div className="hero-aura" />
-        <div className="section-wrap relative grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
-          <div>
-            <Badge tone="accent" className="mb-5 border border-[#ffe2954b] bg-[#fff0c212] text-[#ffd06a]">
-              Design System Inspired by Mistral AI
-            </Badge>
-            <h1 className="hero-title max-w-2xl text-5xl leading-[0.92] sm:text-7xl lg:text-[5.1rem]">
-              <span className="text-white">WARM, BOLD,</span>
-              <br />
-              <span className="text-[#ffd06a]">AND DECLARATIVE</span>
-              <br />
-              <span className="text-[#ffb83e]">INTERFACE LANGUAGE</span>
-            </h1>
-            <p className="mt-6 max-w-xl text-base text-muted sm:text-lg">
-              A sun-drenched visual system built on amber gradients, billboard typography, and architectural cards.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link to="/register">
-                <Button variant="gradient" size="lg" className="border-0 px-7 text-[#1f1f1f] hover:shadow-glow">
-                  Start Free Trial
+    <PageMotion className="relative">
+      <div aria-hidden className="landing-orb landing-orb-primary" />
+      <div aria-hidden className="landing-orb landing-orb-accent" />
+      <div aria-hidden className="landing-orb landing-orb-info" />
+
+      <section id="home" className="relative z-10 overflow-hidden pb-14 pt-8 sm:pt-12">
+        <div className="section-wrap">
+          <div className="glass-panel relative grid items-center gap-10 overflow-hidden px-6 py-8 sm:px-8 sm:py-10 lg:grid-cols-[1.1fr_0.9fr]">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/20 opacity-40 blur-[80px]"
+            />
+            <div className="relative">
+              <div className="hero-heading-glow" />
+              <Badge tone="accent" className="mb-5 border-lineStrong bg-surfaceSoft text-ink">
+                Resume Parser & Matching Engine
+              </Badge>
+              <h1 className="hero-title relative z-10 max-w-2xl text-5xl leading-[0.95] tracking-tight sm:text-7xl lg:text-[4.9rem]">
+                <span className="text-ink">FROM RESUME CHAOS</span>
+                <br />
+                <span className="text-ink">TO RANKED CANDIDATES</span>
+                <br />
+                <span className="text-ink">IN SECONDS</span>
+              </h1>
+              <p className="mt-4 text-lg font-medium text-ink">
+                Because reading 300 resumes by hand is a 2010 problem.
+              </p>
+              <p className="mt-4 max-w-2xl text-base text-muted sm:text-lg">
+                Upload resumes, define your requirements, and let the engine rank your best candidates automatically.
+                <br className="hidden sm:block" />
+                Recruitment, reimagined.
+              </p>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Link to="/register">
+                  <Button variant="gradient" size="lg" className="border-0 px-7 glow-primary">
+                    Get Started - It&apos;s Free
+                  </Button>
+                </Link>
+                <Button variant="ghost" size="lg" onClick={scrollToHowItWorks} className="border-line px-7">
+                  See How It Works
                 </Button>
-              </Link>
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={scrollToHowItWorks}
-                className="border-[#ffe29545] bg-[#fff0c20f] px-7 hover:bg-[#fff0c21a]"
-              >
-                <PlayCircle className="h-5 w-5" />
-                Watch Demo
-              </Button>
-            </div>
-
-            <div className="mt-12 grid gap-3 sm:grid-cols-3">
-              {['82px Hero Scale', 'Weight 400 System', 'Warm Shadow Cascade'].map((stat) => (
-                <Card key={stat} className="border border-[#ffe29531] bg-[#1d1912] p-4 shadow-clay-sm">
-                  <CardContent className="space-y-1">
-                    <p className="text-2xl font-medium text-white">{stat.split(' ')[0]}</p>
-                    <p className="text-xs uppercase tracking-wide text-muted">{stat.split(' ').slice(1).join(' ')}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              {paletteSwatches.map((chip) => (
-                <div key={chip.label} className="market-chip">
-                  <chip.icon className="h-4 w-4 text-[#ffd06a]" />
-                  <ArrowUpRight className="ml-auto h-4 w-4 text-[#ffb83e]" />
-                  <p className="mt-10 text-sm text-white">{chip.label}</p>
-                  <p className="text-sm text-[#ffd06a]">{chip.value}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="mx-auto w-full max-w-[370px]">
-            <div className="phone-shell">
-              <div className="flex items-center justify-between text-white/70">
-                <div className="h-6 w-6 rounded-full border border-[#ffe2954f] bg-[#fff0c214]" />
-                <div className="h-4 w-4 rounded-full border border-[#ffe2954f]" />
-                <div className="h-4 w-4 rounded-[0.2rem] border border-[#ffe2954f]" />
-              </div>
-              <p className="mt-7 text-5xl font-medium tracking-tight text-white">#fa520f</p>
-              <p className="mt-2 text-sm text-[#ffd06a]">Mistral Orange (Primary)</p>
-
-              <div className="mt-6 grid grid-cols-2 gap-2">
-                {['Cream Surface', 'Dark Solid', 'Ghost', 'Text / Underline'].map((action) => (
-                  <button
-                    key={action}
-                    className="rounded-xl2 border border-[#ffe29530] bg-[#fff0c20a] px-3 py-5 text-sm text-[#fbe8c3] transition hover:bg-[#fff0c217]"
-                  >
-                    {action}
-                  </button>
-                ))}
               </div>
 
-              <div className="mt-6 flex items-center gap-2 text-sm">
-                <span className="text-white/60">Palette</span>
-                <span className="rounded-full bg-[#fff0c2] px-3 py-1 text-[#1f1f1f]">Discover</span>
-              </div>
-
-              <div className="mt-4 space-y-3 text-sm">
+              <div className="mt-12 grid gap-3 sm:grid-cols-3">
                 {[
-                  { icon: Palette, name: 'Bright Yellow', val: '#ffd900' },
-                  { icon: Square, name: 'Block Gold', val: '#ffe295' },
-                  { icon: Flame, name: 'Sunshine 700', val: '#ffa110' },
-                  { icon: Sparkles, name: 'Mistral Flame', val: '#fb6424' },
-                ].map((row) => (
-                  <div key={row.name} className="flex items-center justify-between text-white/85">
-                    <div className="flex items-center gap-2">
-                      <row.icon className="h-4 w-4 text-[#ffd06a]" />
-                      <span>{row.name}</span>
-                    </div>
-                    <span>{row.val}</span>
-                  </div>
+                  { title: 'Resume Parsing', sub: 'PDF and DOCX ready' },
+                  { title: 'Skill Matching', sub: 'Role-specific ranking' },
+                  { title: 'Recruiter Workflow', sub: 'Shortlist in one click' },
+                ].map((item) => (
+                  <Card key={item.title} className="bg-surfaceSoft/90 p-4">
+                    <CardContent className="space-y-1">
+                      <p className="text-base font-medium text-ink">{item.title}</p>
+                      <p className="text-xs uppercase tracking-wide text-muted">{item.sub}</p>
+                    </CardContent>
+                  </Card>
                 ))}
+              </div>
+            </div>
+
+            <div className="mx-auto w-full max-w-[380px]">
+              <div className="phone-shell">
+                <p className="text-sm uppercase tracking-[0.18em] text-muted">Recruiter Snapshot</p>
+                <p className="mt-2 text-3xl font-semibold tracking-tight text-ink">Today&apos;s Hiring Pipeline</p>
+                <div className="mt-6 space-y-3 text-sm">
+                  {[
+                    { icon: ArrowUpRight, name: 'Resumes Uploaded', val: '127' },
+                    { icon: SearchCheck, name: 'Profiles Parsed', val: '124' },
+                    { icon: Trophy, name: 'Top Match Score', val: '94%' },
+                  ].map((row) => (
+                    <div
+                      key={row.name}
+                      className="flex items-center justify-between rounded-xl bg-surface px-3 py-3 text-ink/85 shadow-[0_0_0_1px_rgba(255,255,255,0.10)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/5"
+                    >
+                      <div className="flex items-center gap-2">
+                        <row.icon className="h-4 w-4 text-muted" />
+                        <span>{row.name}</span>
+                      </div>
+                      <span>{row.val}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-6 rounded-xl bg-surface px-4 py-4 shadow-[0_0_0_1px_rgba(255,255,255,0.10)]">
+                  <p className="text-xs uppercase tracking-[0.16em] text-muted">Shortcut</p>
+                  <p className="mt-1 text-sm text-ink">Run matching and instantly focus on shortlist-ready candidates.</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="how-it-works" className="section-wrap py-16 sm:py-20">
-        <div className="feature-shell px-6 py-10 sm:px-12">
-          <h2 className="mx-auto max-w-4xl text-center text-3xl font-medium leading-tight text-[#ffd06a] sm:text-5xl">
-            Key Characteristics
+      <section id="how-it-works" className="section-wrap relative z-10 py-16 sm:py-20">
+        <div className="glass-panel px-6 py-10 sm:px-12">
+          <h2 className="mx-auto max-w-4xl text-center text-3xl font-medium leading-tight tracking-tight text-ink sm:text-5xl">
+            How It Works
           </h2>
           <div className="mt-10 grid gap-4 md:grid-cols-3">
-            {pillars.map((step) => (
-              <Card key={step.n} className="border border-[#ffe2952d] bg-[#201a12] shadow-none">
+            {howItWorks.map((step) => (
+              <Card key={step.n} className="bg-surface/90">
                 <CardHeader>
-                  <p className="text-3xl font-medium text-[#ffe29556]">{step.n}</p>
-                  <step.icon className="h-7 w-7 text-[#ffd06a]" />
-                  <CardTitle className="text-white">{step.title}</CardTitle>
+                  <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-lg font-semibold text-ink shadow-clay-sm">
+                    {step.n}
+                  </div>
+                  <step.icon className="h-7 w-7 text-ink" />
+                  <CardTitle className="text-ink">{step.title}</CardTitle>
                   <CardDescription className="text-muted">{step.desc}</CardDescription>
                 </CardHeader>
               </Card>
@@ -228,60 +192,52 @@ export default function Landing() {
         </div>
       </section>
 
-      <section id="features" className="section-wrap py-6 sm:py-10">
-        <div className="space-y-4">
-          {features.map((feature, index) => (
-            <Card key={feature.title} className="grid gap-6 border border-[#ffe2952d] bg-[#1a1610] p-6 shadow-none md:grid-cols-2 md:items-center">
-              <div className={index % 2 ? 'md:order-2' : ''}>
-                <Badge tone="accent" className="border border-[#ffe29543] bg-[#fff0c211] text-[#ffd06a]">
+      <section id="features" className="section-wrap relative z-10 py-6 sm:py-10">
+        <h2 className="text-center text-3xl font-medium tracking-tight text-ink sm:text-4xl">Why Teams Choose ParseX</h2>
+        <p className="mx-auto mt-3 max-w-2xl text-center text-muted">
+          Built for modern recruiters who need fast, reliable shortlists without manual resume sorting.
+        </p>
+        <div className="mt-8 grid gap-4 md:grid-cols-2">
+          {features.map((feature) => (
+            <Card key={feature.title} className="grid gap-6 bg-surface/90 p-6 md:grid-cols-[auto_1fr] md:items-center">
+              <div className="grid h-12 w-12 place-items-center rounded-xl2 bg-baseElevated shadow-[0_0_0_1px_rgba(255,255,255,0.12)]">
+                <feature.icon className="h-6 w-6 text-ink" />
+              </div>
+              <div>
+                <Badge tone="accent" className="border-lineStrong bg-surfaceSoft text-ink">
                   {feature.badge}
                 </Badge>
-                <h3 className="mt-3 text-2xl font-medium text-white">{feature.title}</h3>
+                <h3 className="mt-3 text-2xl font-medium tracking-tight text-ink">{feature.title}</h3>
                 <p className="mt-2 text-muted">{feature.desc}</p>
-                <button className="mt-3 text-sm text-[#ffd06a]">Learn more →</button>
               </div>
-              <div className="h-44 border border-[#ffe29534] bg-gradient-to-br from-[#fff0c216] to-[#fa520f14]" />
             </Card>
           ))}
         </div>
       </section>
 
-      <section id="stats" className="section-wrap py-16">
-        <Card className="border border-[#ffe2952e] bg-gradient-to-r from-[#fff0c214] to-[#fa520f18]">
-          <CardContent className="grid gap-6 text-center sm:grid-cols-2 lg:grid-cols-4">
-            {['#fffaeb Warm Ivory', '#fff0c2 Cream', '#ffa110 Sunshine', '#fa520f Orange'].map((item) => (
-              <MotionDiv key={item} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-                <p className="text-3xl font-medium text-white">{item.split(' ')[0]}</p>
-                <p className="text-sm text-muted">{item.split(' ').slice(1).join(' ')}</p>
+      <section id="stats" className="section-wrap relative z-10 py-16">
+        <Card className="bg-surfaceSoft/75 text-center">
+          <CardContent className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {metrics.map((item) => (
+              <MotionDiv key={item.label} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
+                <p className="text-3xl font-medium text-ink">{item.value}</p>
+                <p className="text-sm text-muted">{item.label}</p>
               </MotionDiv>
             ))}
           </CardContent>
         </Card>
       </section>
 
-      <section id="testimonials" className="section-wrap py-14">
-        <h2 className="text-center text-3xl font-medium text-white">Rules That Keep It Cohesive</h2>
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
-          {contentBlocks.map((item) => (
-            <Card key={item.title} className="border border-[#ffe2952f] bg-[#19150f] shadow-none">
-              <CardHeader>
-                <CardTitle>{item.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted">{item.body}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      <section id="cta" className="section-wrap pb-16 pt-10">
-        <Card className="border border-[#ffe29537] bg-gradient-to-r from-[#ffd90025] to-[#fa520f25] text-center shadow-none">
+      <section id="cta" className="section-wrap relative z-10 pb-16 pt-10">
+        <Card className="glass-panel text-center">
           <CardContent>
-            <h2 className="text-3xl font-medium text-white">Ready to apply this system across your product?</h2>
+            <h2 className="text-3xl font-medium tracking-tight text-ink">Stop screening. Start shortlisting.</h2>
+            <p className="mt-2 text-sm text-muted">
+              Create your recruiter account and turn incoming resumes into ranked candidates in minutes.
+            </p>
             <Link to="/register" className="mt-4 inline-block">
-              <Button variant="gradient" className="border-0 px-7 text-[#1f1f1f]">
-                Sign Up Free
+              <Button variant="gradient" className="border-0 px-7">
+                Get Started - It&apos;s Free
               </Button>
             </Link>
           </CardContent>

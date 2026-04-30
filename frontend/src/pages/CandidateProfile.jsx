@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { Download, Mail, Star } from 'lucide-react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Download, Mail, Star, Trash2 } from 'lucide-react';
 import { candidatesApi } from '../api/candidates';
 import { jobsApi } from '../api/jobs';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../components/ui/Card';
@@ -15,14 +15,19 @@ const tabs = ['Overview', 'Skills', 'Experience', 'Education', 'AI Analysis'];
 
 export default function CandidateProfile() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { push } = useToast();
   const [activeTab, setActiveTab] = useState('Overview');
   const [data, setData] = useState(null);
 
   const load = useCallback(async () => {
-    const response = await candidatesApi.getById(id);
-    setData(response.data);
-  }, [id]);
+    try {
+      const response = await candidatesApi.getById(id);
+      setData(response.data);
+    } catch {
+      push('Something went wrong.', 'error');
+    }
+  }, [id, push]);
 
   useEffect(() => {
     load().catch(() => {});
@@ -34,7 +39,7 @@ export default function CandidateProfile() {
       const url = URL.createObjectURL(new Blob([response.data]));
       window.open(url, '_blank', 'noopener,noreferrer');
     } catch {
-      push('Unable to download resume', 'error');
+      push('Something went wrong.', 'error');
     }
   };
 
@@ -44,7 +49,7 @@ export default function CandidateProfile() {
       push('AI analysis refreshed', 'success');
       await load();
     } catch {
-      push('AI analysis failed', 'error');
+      push('Something went wrong.', 'error');
     }
   };
 
@@ -59,11 +64,11 @@ export default function CandidateProfile() {
     }
 
     try {
-      await jobsApi.shortlist(topMatch._id);
+      await jobsApi.shortlist(topMatch._id, { shortlisted: true });
       await load();
-      push('Candidate shortlisted for top matched job', 'success');
-    } catch (error) {
-      push(error.response?.data?.message || 'Failed to shortlist candidate', 'error');
+      push('Candidate added to shortlist.', 'success');
+    } catch {
+      push('Something went wrong.', 'error');
     }
   };
 
@@ -77,20 +82,30 @@ export default function CandidateProfile() {
       await jobsApi.emailMatch(topMatch._id);
       await load();
       push('Shortlist email sent for top matched job', 'success');
-    } catch (error) {
-      push(error.response?.data?.message || 'Failed to send email', 'error');
+    } catch {
+      push('Something went wrong.', 'error');
+    }
+  };
+
+  const deleteCandidate = async () => {
+    try {
+      await candidatesApi.remove(id);
+      push('Candidate removed.', 'info');
+      navigate('/candidates');
+    } catch {
+      push('Something went wrong.', 'error');
     }
   };
 
   if (!candidate) {
-    return <PageMotion className="section-wrap py-8"><Card><CardContent>Loading profile...</CardContent></Card></PageMotion>;
+    return <PageMotion className="section-wrap py-8"><Card><CardContent>Loading candidate profile...</CardContent></Card></PageMotion>;
   }
 
   const score = Math.max(...matches.map((m) => m.matchScore), 0);
 
   return (
     <PageMotion className="section-wrap space-y-6 py-8">
-      <Link to="/candidates" className="text-sm text-accentStart">← Candidates</Link>
+      <Link to="/candidates" className="text-sm text-primary">← Back to Candidate Pool</Link>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
         <Card>
@@ -107,9 +122,13 @@ export default function CandidateProfile() {
         <Card>
           <CardHeader><CardTitle>Actions</CardTitle></CardHeader>
           <CardContent className="space-y-2">
-            <Button className="w-full" variant="gradient" onClick={shortlistTopMatch}><Star className="h-4 w-4" />Shortlist</Button>
-            <Button className="w-full" onClick={emailTopMatch}><Mail className="h-4 w-4" />Send Email</Button>
-            <Button className="w-full" variant="ghost" onClick={openResume}><Download className="h-4 w-4" />Download Resume</Button>
+            <Button className="w-full" variant="gradient" onClick={shortlistTopMatch}><Star className="h-4 w-4" />Add to Shortlist</Button>
+            <Button className="w-full" onClick={emailTopMatch}><Mail className="h-4 w-4" />Send Intro Email</Button>
+            <Button className="w-full" variant="ghost" onClick={openResume}><Download className="h-4 w-4" />Download Original Resume</Button>
+            <Button className="w-full" variant="danger" onClick={deleteCandidate}>
+              <Trash2 className="h-4 w-4" />
+              Delete Candidate
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -181,12 +200,16 @@ export default function CandidateProfile() {
       <Card>
         <CardHeader><CardTitle>Matched Jobs</CardTitle></CardHeader>
         <CardContent className="space-y-2">
-          {matches.map((match) => (
-            <div key={match._id} className="flex items-center justify-between rounded-lg border border-line bg-base/60 px-3 py-2">
-              <span>{match.jobId?.title || 'Job'}</span>
-              <Badge tone="accent">{match.matchScore}%</Badge>
-            </div>
-          ))}
+          {!matches.length ? (
+            <p className="text-sm text-muted">No match results yet. Run the matching engine from a job to see rankings.</p>
+          ) : (
+            matches.map((match) => (
+              <div key={match._id} className="flex items-center justify-between rounded-lg border border-line bg-base/60 px-3 py-2">
+                <span>{match.jobId?.title || 'Job Requirement'}</span>
+                <Badge tone="accent">{match.matchScore}%</Badge>
+              </div>
+            ))
+          )}
         </CardContent>
       </Card>
     </PageMotion>

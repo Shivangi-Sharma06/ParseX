@@ -1,23 +1,33 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { candidatesApi } from '../api/candidates';
 
 export function useCandidates() {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const mountedRef = useRef(true);
 
-  const refetch = async () => {
-    setLoading(true);
+  const refetch = useCallback(async () => {
+    if (mountedRef.current) setLoading(true);
     try {
       const response = await candidatesApi.list();
-      setCandidates(response.data.candidates || []);
+      if (mountedRef.current) {
+        setCandidates(response.data.candidates || []);
+      }
     } finally {
-      setLoading(false);
+      if (mountedRef.current) {
+        setLoading(false);
+      }
     }
-  };
+  }, []);
 
   useEffect(() => {
-    refetch().catch(() => setLoading(false));
-  }, []);
+    refetch().catch(() => {
+      if (mountedRef.current) setLoading(false);
+    });
+    return () => {
+      mountedRef.current = false;
+    };
+  }, [refetch]);
 
   return { candidates, loading, refetch };
 }

@@ -6,15 +6,22 @@ const {
   sendShortlistEmailForMatch,
   emailAllShortlistedForJob,
 } = require('../controllers/matchController');
-const authMiddleware = require('../middleware/authMiddleware');
+const authMiddleware = require('../middleware/auth');
+const { idParam, shortlistValidation, runValidation } = require('../middleware/validators');
 
 const router = express.Router();
 
 router.use(authMiddleware);
-router.post('/:jobId/run', runMatchForJob);
-router.get('/:jobId', getMatchesForJob);
-router.patch('/shortlist/:matchId', shortlistCandidate);
-router.post('/email/:matchId', sendShortlistEmailForMatch);
-router.post('/:jobId/email-shortlisted', emailAllShortlistedForJob);
+router.post('/:jobId/run', idParam('jobId'), runValidation, runMatchForJob);
+router.get('/:jobId', idParam('jobId'), runValidation, getMatchesForJob);
+router.patch(
+  '/shortlist/:matchId',
+  idParam('matchId'),
+  shortlistValidation,
+  runValidation,
+  shortlistCandidate,
+);
+router.post('/email/:matchId', idParam('matchId'), runValidation, sendShortlistEmailForMatch);
+router.post('/:jobId/email-shortlisted', idParam('jobId'), runValidation, emailAllShortlistedForJob);
 
 module.exports = router;

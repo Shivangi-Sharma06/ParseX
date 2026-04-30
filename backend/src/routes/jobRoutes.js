@@ -1,12 +1,14 @@
 const express = require('express');
-const { createJob, getJobs, deleteJob } = require('../controllers/jobController');
-const authMiddleware = require('../middleware/authMiddleware');
+const { createJob, getJobs, updateJob, deleteJob } = require('../controllers/jobController');
+const authMiddleware = require('../middleware/auth');
+const { idParam, jobPayloadValidation, runValidation } = require('../middleware/validators');
 
 const router = express.Router();
 
 router.use(authMiddleware);
-router.post('/', createJob);
+router.post('/', jobPayloadValidation, runValidation, createJob);
 router.get('/', getJobs);
-router.delete('/:jobId', deleteJob);
+router.put('/:jobId', idParam('jobId'), jobPayloadValidation, runValidation, updateJob);
+router.delete('/:jobId', idParam('jobId'), runValidation, deleteJob);
 
 module.exports = router;

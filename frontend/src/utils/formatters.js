@@ -1,9 +1,18 @@
-export const formatDate = (value) =>
-  value ? new Date(value).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A';
+const toDate = (value) => {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
 
-export const formatDateTime = (value) =>
-  value
-    ? new Date(value).toLocaleString(undefined, {
+export const formatDate = (value) => {
+  const date = toDate(value);
+  return date ? date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A';
+};
+
+export const formatDateTime = (value) => {
+  const date = toDate(value);
+  return date
+    ? date.toLocaleString(undefined, {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -11,6 +20,7 @@ export const formatDateTime = (value) =>
         minute: '2-digit',
       })
     : 'N/A';
+};
 
 export const initials = (name = '') =>
   name

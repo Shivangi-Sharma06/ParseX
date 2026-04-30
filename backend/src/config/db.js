@@ -7,8 +7,15 @@ const connectDB = async () => {
     throw new Error('MONGO_URI is missing in environment variables');
   }
 
-  await mongoose.connect(mongoUri);
-  console.log('MongoDB connected');
+  await mongoose.connect(mongoUri, {
+    serverSelectionTimeoutMS: 8000,
+  });
+  console.info('MongoDB connected');
 };
 
-module.exports = connectDB;
+const getDbStatus = () => {
+  const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+  return states[mongoose.connection.readyState] || 'unknown';
+};
+
+module.exports = { connectDB, getDbStatus };

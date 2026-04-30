@@ -39,9 +39,9 @@ export default function Candidates() {
     return (
       <PageMotion className="section-wrap py-8">
         <EmptyState
-          title="No candidates yet"
-          description="Upload resumes to get started with AI parsing and matching."
-          cta="Go to Upload"
+          title="No candidates yet. Upload resumes to get started."
+          description="All parsed candidates with extracted skills and experience will appear here."
+          cta="Upload Resumes"
           onClick={() => (window.location.href = '/upload')}
         />
       </PageMotion>
@@ -50,20 +50,39 @@ export default function Candidates() {
 
   return (
     <PageMotion className="section-wrap space-y-6 py-8">
+      <div>
+        <h1 className="text-3xl font-bold">Candidate Pool</h1>
+        <p className="mt-1 text-sm text-muted">
+          All parsed candidates with extracted skills and experience.
+        </p>
+      </div>
+
       <Card>
         <CardHeader>
-          <CardTitle>Candidate List</CardTitle>
+          <CardTitle>Candidate Search & Filters</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 lg:grid-cols-4">
           <div className="lg:col-span-2">
             <div className="relative">
               <Search className="absolute left-3 top-3.5 h-4 w-4 text-muted" />
-              <Input className="pl-9" placeholder="Search candidates" value={search} onChange={(event) => setSearch(event.target.value)} />
+              <Input
+                className="pl-9"
+                placeholder="Search by candidate name"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+              />
             </div>
           </div>
-          <Input type="number" min="0" max="100" value={minScore} onChange={(event) => setMinScore(Number(event.target.value))} placeholder="Min score" />
+          <Input
+            type="number"
+            min="0"
+            max="100"
+            value={minScore}
+            onChange={(event) => setMinScore(Number(event.target.value))}
+            placeholder="Minimum match score"
+          />
           <select
-            className="focus-ring h-11 rounded-xl border border-line bg-base px-3 text-sm text-white"
+            className="field-surface"
             value={experience}
             onChange={(event) => setExperience(event.target.value)}
           >
@@ -84,7 +103,7 @@ export default function Candidates() {
           {currentPageData.map((candidate) => {
             const score = candidate.mockScore || stableScore(candidate._id);
             return (
-              <Card key={candidate._id} className="hover:shadow-glow">
+              <Card key={candidate._id} className="bg-surface/95 hover:shadow-glow">
                 <CardContent className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="grid h-10 w-10 place-items-center rounded-full bg-white/10 font-semibold">{initials(candidate.name)}</div>
@@ -124,7 +143,7 @@ export default function Candidates() {
                   {currentPageData.map((candidate) => {
                     const score = candidate.mockScore || stableScore(candidate._id);
                     return (
-                      <tr key={candidate._id} className="border-t border-line">
+                      <tr key={candidate._id} className="hover-surface border-t border-line transition-colors duration-200">
                         <td className="py-3">{candidate.name}</td>
                         <td className="py-3">{(candidate.skills || []).slice(0, 3).join(', ')}</td>
                         <td className="py-3">{candidate.experience || 'N/A'}</td>
@@ -132,7 +151,7 @@ export default function Candidates() {
                           <progress max="100" value={score} className="h-2 w-24" />
                         </td>
                         <td className="py-3">{formatDate(candidate.createdAt)}</td>
-                        <td className="py-3"><Link to={`/candidates/${candidate._id}`} className="text-accentStart">View Profile</Link></td>
+                        <td className="py-3"><Link to={`/candidates/${candidate._id}`} className="text-primary">View Profile</Link></td>
                       </tr>
                     );
                   })}

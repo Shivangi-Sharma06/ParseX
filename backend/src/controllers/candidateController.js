@@ -1,8 +1,11 @@
 const path = require('path');
+const fs = require('fs/promises');
 const Candidate = require('../models/Candidate');
 const Match = require('../models/Match');
 const { parseResumeFile } = require('../services/resumeParserService');
 const { generateCandidateAnalysis } = require('../services/aiAnalysisService');
+
+const getUserId = (req) => req.user?.id || req.user?._id;
 
 const toCandidateResponse = (candidateDoc) => ({
   _id: candidateDoc._id,
@@ -27,7 +30,7 @@ const uploadResume = async (req, res) => {
     const parsedData = await parseResumeFile(req.file.path);
 
     const draftCandidate = {
-      recruiter: req.user._id,
+      recruiter: getUserId(req),
       ...parsedData,
       resumeFile: req.file.filename,
     };
@@ -56,7 +59,7 @@ const uploadResume = async (req, res) => {
 
 const getCandidates = async (req, res) => {
   try {
-    const candidates = await Candidate.find({ recruiter: req.user._id })
+    const candidates = await Candidate.find({ recruiter: getUserId(req) })
       .select('-resumeText')
       .sort({ createdAt: -1 });
     return res.json({ candidates });
@@ -69,7 +72,7 @@ const getCandidateProfile = async (req, res) => {
   try {
     const candidate = await Candidate.findOne({
       _id: req.params.candidateId,
-      recruiter: req.user._id,
+      recruiter: getUserId(req),
     });
 
     if (!candidate) {
@@ -96,7 +99,7 @@ const runCandidateAnalysis = async (req, res) => {
 
     const candidate = await Candidate.findOne({
       _id: candidateId,
-      recruiter: req.user._id,
+      recruiter: getUserId(req),
     });
 
     if (!candidate) {
@@ -129,7 +132,7 @@ const getResumeFile = async (req, res) => {
   try {
     const candidate = await Candidate.findOne({
       _id: req.params.candidateId,
-      recruiter: req.user._id,
+      recruiter: getUserId(req),
     });
 
     if (!candidate) {
@@ -142,10 +145,35 @@ const getResumeFile = async (req, res) => {
   }
 };
 
+const deleteCandidate = async (req, res) => {
+  try {
+    const candidate = await Candidate.findOneAndDelete({
+      _id: req.params.candidateId,
+      recruiter: getUserId(req),
+    });
+
+    if (!candidate) {
+      return res.status(404).json({ message: 'Candidate not found' });
+    }
+
+    await Match.deleteMany({ candidateId: candidate._id });
+
+    if (candidate.resumeFile) {
+      const resumePath = path.resolve(__dirname, '../../uploads', candidate.resumeFile);
+      await fs.unlink(resumePath).catch(() => {});
+    }
+
+    return res.json({ message: 'Candidate deleted successfully' });
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to delete candidate', error: error.message });
+  }
+};
+
 module.exports = {
   uploadResume,
   getCandidates,
   getCandidateProfile,
   runCandidateAnalysis,
   getResumeFile,
+  deleteCandidate,
 };
