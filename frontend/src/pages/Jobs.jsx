@@ -11,6 +11,7 @@ import { Input } from '../components/ui/Input';
 import { PageMotion } from '../components/ui/PageMotion';
 import { useToast } from '../components/ui/Toast';
 import { stableCount } from '../utils/score';
+import { getDemoJobs } from '../utils/demoData';
 
 export default function Jobs() {
   const { jobs, refetch } = useJobs();
@@ -18,6 +19,7 @@ export default function Jobs() {
   const [open, setOpen] = useState(false);
   const [editingJobId, setEditingJobId] = useState('');
   const [skillInput, setSkillInput] = useState('');
+  const [addingSamples, setAddingSamples] = useState(false);
   const [form, setForm] = useState({ title: '', description: '', requiredSkills: [], experienceRequired: '' });
 
   const resetForm = () => {
@@ -84,6 +86,42 @@ export default function Jobs() {
   };
 
   const jobsList = useMemo(() => jobs || [], [jobs]);
+  const sampleJobs = getDemoJobs().map((job) => ({
+    title: job.title,
+    description: job.description,
+    requiredSkills: job.requiredSkills,
+  }));
+
+  const addSampleJobs = async () => {
+    setAddingSamples(true);
+    try {
+      if (jobsList.some((job) => job.isDemo)) {
+        push('Demo jobs are already loaded.', 'info');
+        return;
+      }
+
+      const existingTitles = new Set(
+        jobsList.map((job) => String(job.title || '').trim().toLowerCase()).filter(Boolean),
+      );
+
+      const jobsToCreate = sampleJobs.filter(
+        (job) => !existingTitles.has(String(job.title || '').trim().toLowerCase()),
+      );
+
+      if (!jobsToCreate.length) {
+        push('Sample jobs are already available.', 'info');
+        return;
+      }
+
+      await Promise.all(jobsToCreate.map((job) => jobsApi.create(job)));
+      await refetch();
+      push(`${jobsToCreate.length} sample jobs added.`, 'success');
+    } catch (error) {
+      push(error.response?.data?.message || 'Backend not reachable. Showing demo jobs.', 'info');
+    } finally {
+      setAddingSamples(false);
+    }
+  };
 
   return (
     <PageMotion className="section-wrap space-y-6 py-8">
@@ -92,32 +130,41 @@ export default function Jobs() {
           <h1 className="text-3xl font-bold">Job Requirements</h1>
           <p className="mt-1 text-sm text-muted">Define the skills and criteria for your open roles.</p>
         </div>
-        <Button
-          variant="gradient"
-          onClick={() => {
-            resetForm();
-            setOpen(true);
-          }}
-        >
-          <Plus className="h-4 w-4" />
-          Add Job Requirement
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="gradient"
+            onClick={() => {
+              resetForm();
+              setOpen(true);
+            }}
+          >
+            <Plus className="h-4 w-4" />
+            Add Job Requirement
+          </Button>
+          <Button variant="ghost" onClick={addSampleJobs} disabled={addingSamples}>
+            {addingSamples ? 'Loading...' : 'Load Sample Jobs'}
+          </Button>
+        </div>
       </div>
 
       {!jobsList.length ? (
         <Card>
           <CardContent className="rounded-xl border border-dashed border-line bg-base/50 p-8 text-center">
             <p className="text-sm text-muted">No jobs posted yet. Create one to begin matching.</p>
-            <Button
-              className="mt-4"
-              variant="gradient"
-              onClick={() => {
-                resetForm();
-                setOpen(true);
-              }}
-            >
-              Add Job Requirement
-            </Button>
+            <div className="mt-4 flex gap-2 justify-center">
+              <Button
+                variant="gradient"
+                onClick={() => {
+                  resetForm();
+                  setOpen(true);
+                }}
+              >
+                Add Job Requirement
+              </Button>
+              <Button variant="ghost" onClick={addSampleJobs} disabled={addingSamples}>
+                {addingSamples ? 'Loading...' : 'Load Sample Jobs'}
+              </Button>
+            </div>
           </CardContent>
         </Card>
       ) : (
@@ -134,14 +181,18 @@ export default function Jobs() {
                 <p className="text-sm text-muted">{job.description}</p>
                 <div className="flex items-center justify-between text-xs text-muted">
                   <span>{stableCount(job._id, 0, 20)} candidates matched</span>
-                  <span>Active</span>
+                  <span>{job.isDemo ? 'Demo' : 'Active'}</span>
                 </div>
                 <div className="flex gap-2">
-                  <Link to={`/jobs/${job._id}/match`} className="flex-1"><Button className="w-full">Run Matching Engine</Button></Link>
-                  <Button variant="ghost" onClick={() => onEditJob(job)} aria-label="Edit Job">
+                  {job.isDemo ? (
+                    <Button className="w-full" disabled>Demo Job</Button>
+                  ) : (
+                    <Link to={`/jobs/${job._id}/match`} className="flex-1"><Button className="w-full">Run Matching Engine</Button></Link>
+                  )}
+                  <Button variant="ghost" onClick={() => onEditJob(job)} aria-label="Edit Job" disabled={job.isDemo}>
                     <Pencil className="h-4 w-4" />
                   </Button>
-                  <Button variant="danger" onClick={() => onDeleteJob(job._id)}><Trash2 className="h-4 w-4" /></Button>
+                  <Button variant="danger" onClick={() => onDeleteJob(job._id)} disabled={job.isDemo}><Trash2 className="h-4 w-4" /></Button>
                 </div>
               </CardContent>
             </Card>

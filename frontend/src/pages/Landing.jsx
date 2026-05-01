@@ -84,8 +84,7 @@ export default function Landing() {
       <div aria-hidden className="landing-orb landing-orb-info" />
 
       <section id="home" className="relative z-10 overflow-hidden pb-14 pt-8 sm:pt-12">
-        <div className="section-wrap">
-          <div className="glass-panel relative grid items-center gap-10 overflow-hidden px-6 py-8 sm:px-8 sm:py-10 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="relative grid min-h-[calc(100svh-8rem)] w-full items-center gap-10 overflow-hidden px-4 py-8 sm:px-6 sm:py-10 lg:grid-cols-[1.1fr_0.9fr] lg:px-12 xl:px-16">
             <div
               aria-hidden
               className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/20 opacity-40 blur-[80px]"
@@ -123,7 +122,7 @@ export default function Landing() {
 
               <div className="mt-12 grid gap-3 sm:grid-cols-3">
                 {[
-                  { title: 'Resume Parsing', sub: 'PDF and DOCX ready' },
+                  { title: 'Resume Parsing', sub: 'All file formats ready' },
                   { title: 'Skill Matching', sub: 'Role-specific ranking' },
                   { title: 'Recruiter Workflow', sub: 'Shortlist in one click' },
                 ].map((item) => (
@@ -166,7 +165,6 @@ export default function Landing() {
                 </div>
               </div>
             </div>
-          </div>
         </div>
       </section>
 

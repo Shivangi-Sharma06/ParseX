@@ -2,6 +2,7 @@ import { apiClient } from './client';
 
 export const candidatesApi = {
   list: () => apiClient.get('/candidates'),
+  create: (payload) => apiClient.post('/candidates/create', payload),
   getById: (id) => apiClient.get(`/candidates/${id}`),
   remove: (id) => apiClient.delete(`/candidates/${id}`),
   upload: (formData, onUploadProgress) =>

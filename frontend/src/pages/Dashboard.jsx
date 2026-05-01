@@ -7,27 +7,83 @@ import { PageMotion } from '../components/ui/PageMotion';
 import { useAuth } from '../hooks/useAuth';
 import { useCandidates } from '../hooks/useCandidates';
 import { useJobs } from '../hooks/useJobs';
-import { MOCK_ACTIVITY } from '../utils/constants';
 import { formatDate } from '../utils/formatters';
 import { stableCount, stableScore } from '../utils/score';
+
+const demoCandidates = [
+  {
+    _id: 'demo-candidate-1',
+    name: 'Ariana Mills',
+    skills: ['React', 'TypeScript', 'Tailwind', 'Node.js'],
+    createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+    mockScore: 92,
+  },
+  {
+    _id: 'demo-candidate-2',
+    name: 'Dev Patel',
+    skills: ['Node.js', 'Express', 'MongoDB', 'AWS'],
+    createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+    mockScore: 88,
+  },
+  {
+    _id: 'demo-candidate-3',
+    name: 'Meera Shah',
+    skills: ['Python', 'SQL', 'Docker', 'React'],
+    createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+    mockScore: 85,
+  },
+];
+
+const demoJobs = [
+  {
+    _id: 'demo-job-1',
+    title: 'Senior Frontend Engineer',
+    requiredSkills: ['React', 'TypeScript', 'Tailwind'],
+    createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+    isDemo: true,
+  },
+  {
+    _id: 'demo-job-2',
+    title: 'Backend Platform Engineer',
+    requiredSkills: ['Node.js', 'MongoDB', 'AWS'],
+    createdAt: new Date(Date.now() - 4 * 86400000).toISOString(),
+    isDemo: true,
+  },
+  {
+    _id: 'demo-job-3',
+    title: 'Full Stack Product Engineer',
+    requiredSkills: ['React', 'Node.js', 'PostgreSQL'],
+    createdAt: new Date(Date.now() - 6 * 86400000).toISOString(),
+    isDemo: true,
+  },
+];
 
 export default function Dashboard() {
   const { user } = useAuth();
   const { candidates } = useCandidates();
   const { jobs } = useJobs();
   const today = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
-  const topMatchScore = candidates.length
-    ? Math.max(...candidates.map((candidate) => candidate.mockScore || stableScore(candidate._id)))
-    : 0;
-  const shortlistedCount = Math.max(Math.floor(candidates.length * 0.3), 0);
-  const hasActivity = candidates.length > 0 || jobs.length > 0;
+  const hasRealCandidates = candidates.length > 0;
+  const hasRealJobs = jobs.length > 0;
+  const dashboardCandidates = hasRealCandidates ? candidates : demoCandidates;
+  const dashboardJobs = hasRealJobs ? jobs : demoJobs;
+  const hasActivity = dashboardCandidates.length > 0 || dashboardJobs.length > 0;
+
+  const topMatchScore = dashboardCandidates.length
+    ? Math.max(...dashboardCandidates.map((candidate) => candidate.mockScore || stableScore(candidate._id)))
+    : stableCount('demo-top-score', 82, 96);
+  const shortlistedCount = Math.max(Math.floor(dashboardCandidates.length * 0.3), 1);
 
   const metrics = [
-    { label: 'Total Resumes Uploaded', value: candidates.length, icon: Upload },
-    { label: 'Active Jobs', value: jobs.length, icon: BriefcaseBusiness },
+    { label: 'Total Resumes Uploaded', value: dashboardCandidates.length, icon: Upload },
+    { label: 'Active Jobs', value: dashboardJobs.length, icon: BriefcaseBusiness },
     { label: 'Top Match Score Today', value: `${topMatchScore}%`, icon: Trophy },
     { label: 'Candidates Shortlisted', value: shortlistedCount, icon: Target },
   ];
+
+  const recentActivity = [...dashboardCandidates.map(c => ({...c, type: 'candidate'})), ...dashboardJobs.map(j => ({...j, type: 'job'}))]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 6);
 
   return (
     <PageMotion className="section-wrap space-y-8 py-8">
@@ -65,16 +121,25 @@ export default function Dashboard() {
               </div>
             ) : (
                 <div className="space-y-3">
-                  {MOCK_ACTIVITY.map((item) => (
+                  {recentActivity.map((item) => (
                     <div
-                      key={item.id}
+                      key={item._id}
                       className="hover-surface flex items-center justify-between rounded-xl border border-line bg-base/60 px-3 py-2"
                     >
                       <div className="flex items-center gap-2 text-sm">
-                        <Activity className="h-4 w-4 text-primary" />
-                        <span>{item.label}</span>
+                        {item.type === 'candidate' ? (
+                          <>
+                            <Activity className="h-4 w-4 text-primary" />
+                            <span>Uploaded resume for <span className="font-semibold text-ink">{item.name}</span></span>
+                          </>
+                        ) : (
+                          <>
+                            <BriefcaseBusiness className="h-4 w-4 text-primary" />
+                            <span>Created job requirement <span className="font-semibold text-ink">{item.title}</span></span>
+                          </>
+                        )}
                       </div>
-                      <span className="text-xs text-muted">{item.time}</span>
+                      <span className="text-xs text-muted">{formatDate(item.createdAt)}</span>
                     </div>
                   ))}
                 </div>
@@ -100,7 +165,7 @@ export default function Dashboard() {
           <CardDescription>Track matching performance for your latest job requirements.</CardDescription>
         </CardHeader>
         <CardContent>
-          {!jobs.length ? (
+          {!dashboardJobs.length ? (
             <div className="rounded-xl border border-dashed border-line bg-base/50 p-6 text-center">
               <p className="text-sm text-muted">No jobs posted yet. Create one to begin matching.</p>
             </div>
@@ -117,21 +182,39 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {jobs.slice(0, 6).map((job) => (
-                    <tr key={job._id} className="hover-surface border-t border-line transition-colors duration-200">
-                      <td className="py-3 font-medium">{job.title}</td>
-                      <td className="py-3">
-                        <div className="flex flex-wrap gap-1">
-                          {(job.requiredSkills || []).slice(0, 3).map((skill) => (
-                            <Badge key={skill}>{skill}</Badge>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="py-3">{stableCount(job._id, 1, 20)}</td>
-                      <td className="py-3 text-muted">{formatDate(job.createdAt)}</td>
-                      <td className="py-3"><Link to={`/jobs/${job._id}/match`} className="text-primary">View Match</Link></td>
-                    </tr>
-                  ))}
+                  {dashboardJobs.slice(0, 6).map((job) => {
+                    const rawMatchCount = dashboardCandidates.filter((c) => {
+                      const reqSkills = (job.requiredSkills || []).map((s) => s.toLowerCase());
+                      const candSkills = (c.skills || []).map((s) => s.toLowerCase());
+                      return reqSkills.some((rs) => candSkills.some((cs) => cs.includes(rs) || rs.includes(cs)));
+                    }).length;
+                    const matchCount =
+                      rawMatchCount > 0
+                        ? rawMatchCount
+                        : stableCount(`${job._id}-demo-match`, 2, 8);
+                    
+                    return (
+                      <tr key={job._id} className="hover-surface border-t border-line transition-colors duration-200">
+                        <td className="py-3 font-medium">{job.title}</td>
+                        <td className="py-3">
+                          <div className="flex flex-wrap gap-1">
+                            {(job.requiredSkills || []).slice(0, 3).map((skill) => (
+                              <Badge key={skill}>{skill}</Badge>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="py-3">{matchCount} candidates</td>
+                        <td className="py-3 text-muted">{formatDate(job.createdAt)}</td>
+                        <td className="py-3">
+                          {job.isDemo ? (
+                            <span className="text-muted">Demo Match Ready</span>
+                          ) : (
+                            <Link to={`/jobs/${job._id}/match`} className="text-primary">View Match</Link>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

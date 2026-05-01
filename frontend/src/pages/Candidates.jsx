@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LayoutGrid, List, Search } from 'lucide-react';
+import { LayoutGrid, List, Search, Plus } from 'lucide-react';
 import { useCandidates } from '../hooks/useCandidates';
+import { candidatesApi } from '../api/candidates';
 import { EmptyState } from '../components/ui/EmptyState';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
@@ -11,9 +12,12 @@ import { ScoreRing } from '../components/ui/ScoreRing';
 import { initials, formatDate } from '../utils/formatters';
 import { PageMotion } from '../components/ui/PageMotion';
 import { stableScore } from '../utils/score';
+import { useToast } from '../components/ui/Toast';
+import { getDemoCandidates } from '../utils/demoData';
 
 export default function Candidates() {
-  const { candidates, loading } = useCandidates();
+  const { candidates, loading, refetch } = useCandidates();
+  const { push } = useToast();
   const [search, setSearch] = useState('');
   const [view, setView] = useState('grid');
   const [minScore, setMinScore] = useState(0);
@@ -34,16 +38,55 @@ export default function Candidates() {
   const pageSize = 8;
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPageData = filtered.slice((page - 1) * pageSize, page * pageSize);
+  const sampleCandidates = getDemoCandidates().map((candidate) => ({
+    name: candidate.name,
+    email: candidate.email,
+    skills: candidate.skills,
+    education: candidate.education,
+    experience: candidate.experience,
+  }));
+
+  const addSampleCandidates = async () => {
+    try {
+      if (candidates.some((candidate) => candidate.isDemo)) {
+        push('Demo candidates are already loaded.', 'info');
+        return;
+      }
+
+      for (const candidate of sampleCandidates) {
+        await candidatesApi.create(candidate);
+      }
+      push('Sample candidates added successfully!', 'success');
+      await refetch();
+    } catch (error) {
+      push(error.response?.data?.message || 'Backend not reachable. Showing demo candidates.', 'info');
+    }
+  };
 
   if (!loading && candidates.length === 0) {
     return (
       <PageMotion className="section-wrap py-8">
-        <EmptyState
-          title="No candidates yet. Upload resumes to get started."
-          description="All parsed candidates with extracted skills and experience will appear here."
-          cta="Upload Resumes"
-          onClick={() => (window.location.href = '/upload')}
-        />
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold">Candidate Pool</h1>
+            <p className="mt-1 text-sm text-muted">
+              All parsed candidates with extracted skills and experience.
+            </p>
+          </div>
+          <Card className="border border-dashed">
+            <CardContent className="p-8 text-center">
+              <p className="text-sm text-muted mb-4">No candidates yet. Upload resumes or load sample candidates to get started.</p>
+              <div className="flex gap-2 justify-center">
+                <Button variant="gradient" onClick={() => (window.location.href = '/upload')}>
+                  Upload Resumes
+                </Button>
+                <Button variant="ghost" onClick={addSampleCandidates}>
+                  Load Sample Candidates
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </PageMotion>
     );
   }

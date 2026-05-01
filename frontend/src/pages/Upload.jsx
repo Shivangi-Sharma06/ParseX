@@ -12,23 +12,11 @@ export default function Upload() {
   const { push, loading, update } = useToast();
   const [files, setFiles] = useState([]);
 
-  const allowedMimeTypes = new Set([
-    'application/pdf',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  ]);
-
-  const hasAllowedExtension = (name = '') => /\.(pdf|docx)$/i.test(name);
-
   const onSelect = (incomingFiles) => {
     const normalized = Array.from(incomingFiles)
       .filter((file) => {
-        const validType = allowedMimeTypes.has(file.type) || hasAllowedExtension(file.name);
-        if (!validType) {
-          push('Only PDF and DOCX files are supported.', 'warn');
-          return false;
-        }
-        if (file.size > 5 * 1024 * 1024) {
-          push('Upload failed. Please check the file format.', 'error');
+        if (file.size > 100 * 1024 * 1024) {
+          push('Upload failed. File exceeds limit.', 'error');
           return false;
         }
         return true;
@@ -70,18 +58,8 @@ export default function Upload() {
           isLoading: false,
           autoClose: 3000,
         });
-      } catch (error) {
+      } catch {
         updateFile(item.id, { status: 'Error', progress: 0 });
-        const message = error.response?.data?.message || '';
-        if (message.includes('Only PDF and DOCX')) {
-          update(toastId, {
-            render: 'Only PDF and DOCX files are supported.',
-            type: 'warning',
-            isLoading: false,
-            autoClose: 3000,
-          });
-          continue;
-        }
         update(toastId, {
           render: 'Upload failed. Please check the file format.',
           type: 'error',
@@ -99,7 +77,7 @@ export default function Upload() {
       <div>
         <h1 className="text-3xl font-bold">Upload Candidate Resumes</h1>
         <p className="mt-1 text-sm text-muted">
-          Supports PDF and DOCX formats. We&apos;ll extract and structure everything automatically.
+          Supports all file formats. We&apos;ll extract and structure everything automatically.
         </p>
       </div>
 
@@ -112,10 +90,10 @@ export default function Upload() {
           <label className="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-line bg-base/60 p-14 text-center hover:border-accentStart">
             <CloudUpload className="h-8 w-8 text-primary" />
             <p className="text-sm text-muted">Drop resumes here or click to browse</p>
-            <p className="text-xs text-muted">Max file size: 5MB per file</p>
+            <p className="text-xs text-muted">Max file size: 100MB per file</p>
             <input
               type="file"
-              accept=".pdf,.docx"
+              accept="*"
               multiple
               className="hidden"
               onChange={(event) => onSelect(event.target.files || [])}

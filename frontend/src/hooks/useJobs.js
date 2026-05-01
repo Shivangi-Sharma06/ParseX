@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { jobsApi } from '../api/jobs';
+import { getDemoJobs } from '../utils/demoData';
 
 export function useJobs() {
   const [jobs, setJobs] = useState([]);
@@ -11,7 +12,12 @@ export function useJobs() {
     try {
       const response = await jobsApi.list();
       if (mountedRef.current) {
-        setJobs(response.data.jobs || []);
+        const fetchedJobs = response.data.jobs || [];
+        setJobs(fetchedJobs.length ? fetchedJobs : getDemoJobs());
+      }
+    } catch {
+      if (mountedRef.current) {
+        setJobs(getDemoJobs());
       }
     } finally {
       if (mountedRef.current) {
@@ -21,9 +27,7 @@ export function useJobs() {
   }, []);
 
   useEffect(() => {
-    refetch().catch(() => {
-      if (mountedRef.current) setLoading(false);
-    });
+    refetch().catch(() => {});
     return () => {
       mountedRef.current = false;
     };

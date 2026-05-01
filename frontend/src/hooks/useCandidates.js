@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { candidatesApi } from '../api/candidates';
+import { getDemoCandidates } from '../utils/demoData';
 
 export function useCandidates() {
   const [candidates, setCandidates] = useState([]);
@@ -11,7 +12,12 @@ export function useCandidates() {
     try {
       const response = await candidatesApi.list();
       if (mountedRef.current) {
-        setCandidates(response.data.candidates || []);
+        const fetchedCandidates = response.data.candidates || [];
+        setCandidates(fetchedCandidates.length ? fetchedCandidates : getDemoCandidates());
+      }
+    } catch {
+      if (mountedRef.current) {
+        setCandidates(getDemoCandidates());
       }
     } finally {
       if (mountedRef.current) {
@@ -21,9 +27,7 @@ export function useCandidates() {
   }, []);
 
   useEffect(() => {
-    refetch().catch(() => {
-      if (mountedRef.current) setLoading(false);
-    });
+    refetch().catch(() => {});
     return () => {
       mountedRef.current = false;
     };

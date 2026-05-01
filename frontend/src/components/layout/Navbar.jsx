@@ -114,13 +114,6 @@ export function Navbar() {
                     >
                       Profile
                     </Link>
-                    <Link
-                      to="/analytics"
-                      onClick={() => setMenuOpen(false)}
-                      className="block w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-white/5"
-                    >
-                      Settings
-                    </Link>
                     <button className="w-full rounded-lg px-3 py-2 text-left text-sm text-danger hover:bg-danger/10" onClick={onLogout}>
                       Logout
                     </button>
