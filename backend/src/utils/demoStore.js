@@ -103,8 +103,8 @@ const demoMatchesByUser = new Map();
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
 
-const ensureDemoUser = ({ email = 'demo@parsex.local', username = 'Demo Recruiter' } = {}) => {
-  const normalizedEmail = String(email || 'demo@parsex.local').toLowerCase();
+const ensureDemoUser = ({ email = 'demo@ResumeIQ.local', username = 'Demo Recruiter' } = {}) => {
+  const normalizedEmail = String(email || 'demo@ResumeIQ.local').toLowerCase();
   const existing = demoUsersByEmail.get(normalizedEmail);
   if (existing) {
     return existing;

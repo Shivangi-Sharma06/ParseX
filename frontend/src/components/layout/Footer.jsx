@@ -21,7 +21,7 @@ export function Footer() {
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-line bg-white/[0.03] px-3 py-2">
             <Shield className="h-4 w-4 text-primary" />
-            <span className="text-sm font-semibold text-ink">ParseX</span>
+            <span className="text-sm font-semibold text-ink">ResumeIQ</span>
           </div>
           <h3 className="mt-5 max-w-md text-2xl font-semibold leading-tight text-ink sm:text-3xl">
             Hire smarter, not harder.
@@ -61,7 +61,7 @@ export function Footer() {
 
       <div className="section-wrap mt-10 border-t border-line pt-5">
         <div className="flex flex-col items-center justify-between gap-2 text-xs text-muted md:flex-row">
-          <p>© 2026 ParseX. All rights reserved.</p>
+          <p>© 2026 ResumeIQ. All rights reserved.</p>
           <p>Built for modern recruiting teams.</p>
         </div>
       </div>

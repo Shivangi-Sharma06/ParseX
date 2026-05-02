@@ -191,7 +191,7 @@ export default function Landing() {
       </section>
 
       <section id="features" className="section-wrap relative z-10 py-6 sm:py-10">
-        <h2 className="text-center text-3xl font-medium tracking-tight text-ink sm:text-4xl">Why Teams Choose ParseX</h2>
+        <h2 className="text-center text-3xl font-medium tracking-tight text-ink sm:text-4xl">Why Teams Choose ResumeIQ</h2>
         <p className="mx-auto mt-3 max-w-2xl text-center text-muted">
           Built for modern recruiters who need fast, reliable shortlists without manual resume sorting.
         </p>

@@ -120,7 +120,7 @@ const login = async (req, res) => {
     });
   } catch (error) {
     if (!isDbConnected()) {
-      const fallbackEmail = req.body?.email || 'demo@parsex.local';
+      const fallbackEmail = req.body?.email || 'demo@ResumeIQ.local';
       const demoUsername = String(fallbackEmail).split('@')[0] || 'demo-user';
       return res.json(buildDemoAuthResponse({ email: fallbackEmail, username: demoUsername }));
     }
