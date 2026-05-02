@@ -1,27 +1,39 @@
 const { normalizeText } = require('../utils/skills');
 
-const normalizeSkillList = (skills = []) =>
-  skills
-    .map((skill) => normalizeText(skill))
-    .filter(Boolean)
-    .map((skill) => skill.replace(/\s+/g, ''));
+const normalizeSkill = (skill = '') =>
+  normalizeText(skill).replace(/[^a-z0-9+#]/g, '');
+
+const normalizeSkillList = (skills = []) => skills.map((skill) => normalizeSkill(skill)).filter(Boolean);
 
 const calculateMatch = (candidateSkills = [], requiredSkills = []) => {
-  const normalizedCandidateSkills = normalizeSkillList(candidateSkills);
   const normalizedRequiredSkills = normalizeSkillList(requiredSkills);
+  const uniqueRequiredSkills = Array.from(new Set(normalizedRequiredSkills));
 
-  const requiredSet = new Set(normalizedRequiredSkills);
-  const candidateSet = new Set(normalizedCandidateSkills);
-
-  if (requiredSet.size === 0) {
+  if (!uniqueRequiredSkills.length) {
     return {
       score: 0,
       matchedSkills: [],
     };
   }
 
-  const matchedSkills = [...requiredSet].filter((skill) => candidateSet.has(skill));
-  const score = Number(((matchedSkills.length / requiredSet.size) * 100).toFixed(2));
+  const normalizedCandidateSkills = new Set(normalizeSkillList(candidateSkills));
+  const matchedSkills = [];
+  const matchedNormalizedSkills = new Set();
+
+  requiredSkills.forEach((requiredSkill) => {
+    const normalizedSkill = normalizeSkill(requiredSkill);
+
+    if (!normalizedSkill || matchedNormalizedSkills.has(normalizedSkill)) {
+      return;
+    }
+
+    if (normalizedCandidateSkills.has(normalizedSkill)) {
+      matchedNormalizedSkills.add(normalizedSkill);
+      matchedSkills.push(requiredSkill);
+    }
+  });
+
+  const score = Math.round((matchedNormalizedSkills.size / uniqueRequiredSkills.length) * 100);
 
   return {
     score,

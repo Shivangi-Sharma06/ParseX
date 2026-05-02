@@ -1,13 +1,34 @@
 const Job = require('../models/Job');
 const Match = require('../models/Match');
 const { normalizeText } = require('../utils/skills');
+const { isDbConnected } = require('../config/db');
+const {
+  listJobs: listDemoJobs,
+  createJob: createDemoJob,
+  updateJob: updateDemoJob,
+  deleteJob: deleteDemoJob,
+} = require('../utils/demoStore');
 
 const getUserId = (req) => req.user?.id || req.user?._id;
 
-const parseSkillInput = (requiredSkills = []) =>
-  (Array.isArray(requiredSkills) ? requiredSkills : String(requiredSkills).split(','))
-    .map((skill) => normalizeText(skill).replace(/\s+/g, ''))
-    .filter(Boolean);
+const parseSkillInput = (requiredSkills = []) => {
+  const rawSkills = Array.isArray(requiredSkills) ? requiredSkills : String(requiredSkills).split(',');
+  const parsedSkills = [];
+  const seen = new Set();
+
+  rawSkills.forEach((skill) => {
+    const normalized = normalizeText(skill);
+
+    if (!normalized || seen.has(normalized)) {
+      return;
+    }
+
+    seen.add(normalized);
+    parsedSkills.push(String(skill).trim());
+  });
+
+  return parsedSkills;
+};
 
 const createJob = async (req, res) => {
   try {
@@ -15,6 +36,15 @@ const createJob = async (req, res) => {
 
     if (!title || !description || !requiredSkills) {
       return res.status(400).json({ message: 'Title, description and required skills are required' });
+    }
+
+    if (!isDbConnected()) {
+      const demoJob = createDemoJob(getUserId(req), {
+        title,
+        description,
+        requiredSkills: parseSkillInput(requiredSkills),
+      });
+      return res.status(201).json({ message: 'Job created successfully', job: demoJob, mode: 'demo' });
     }
 
     const job = await Job.create({
@@ -32,7 +62,13 @@ const createJob = async (req, res) => {
 
 const getJobs = async (req, res) => {
   try {
+    if (!isDbConnected()) {
+      const jobs = listDemoJobs(getUserId(req));
+      return res.json({ jobs, mode: 'demo' });
+    }
+
     const jobs = await Job.find({ createdBy: getUserId(req) }).sort({ createdAt: -1 });
+
     return res.json({ jobs });
   } catch (error) {
     return res.status(500).json({ message: 'Failed to fetch jobs', error: error.message });
@@ -46,6 +82,20 @@ const updateJob = async (req, res) => {
 
     if (!title || !description || !parsedSkills.length) {
       return res.status(400).json({ message: 'Title, description and required skills are required' });
+    }
+
+    if (!isDbConnected()) {
+      const job = updateDemoJob(getUserId(req), req.params.jobId, {
+        title,
+        description,
+        requiredSkills: parsedSkills,
+      });
+
+      if (!job) {
+        return res.status(404).json({ message: 'Job not found' });
+      }
+
+      return res.json({ message: 'Job updated successfully', job, mode: 'demo' });
     }
 
     const job = await Job.findOneAndUpdate(
@@ -75,6 +125,14 @@ const updateJob = async (req, res) => {
 
 const deleteJob = async (req, res) => {
   try {
+    if (!isDbConnected()) {
+      const deleted = deleteDemoJob(getUserId(req), req.params.jobId);
+      if (!deleted) {
+        return res.status(404).json({ message: 'Job not found' });
+      }
+      return res.json({ message: 'Job deleted successfully', mode: 'demo' });
+    }
+
     const job = await Job.findOneAndDelete({
       _id: req.params.jobId,
       createdBy: getUserId(req),

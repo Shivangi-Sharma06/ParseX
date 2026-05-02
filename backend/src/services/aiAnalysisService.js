@@ -51,36 +51,33 @@ const getHeuristicAnalysis = (candidate, resumeText = '') => {
   };
 };
 
-const getOpenAIAnalysis = async ({ candidate, jobDescription }) => {
-  const apiKey = process.env.OPENAI_API_KEY;
-  const model = process.env.OPENAI_MODEL || 'gpt-5.4-mini';
+const getGroqAnalysis = async ({ candidate, jobDescription, resumeText = '' }) => {
+  const apiKey = process.env.GROQ_API_KEY;
+  const model = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
 
   if (!apiKey) {
     return null;
   }
 
   const prompt = [
-    'You are an expert recruiter assistant.',
-    'Analyze the candidate profile and provide strictly valid JSON with keys:',
-    'summary (string), strengths (string[]), concerns (string[]), recommendation (string), confidence (number 0-100).',
-    'Candidate data:',
-    JSON.stringify(
-      {
-        name: candidate.name,
-        email: candidate.email,
-        skills: candidate.skills,
-        education: candidate.education,
-        experience: candidate.experience,
-      },
-      null,
-      2,
-    ),
+    'You are an expert recruiter assistant and an AI analysis engine.',
+    'Analyze the candidate profile and resume text, then compute a match score and professional recommendation.',
+    'Provide strictly valid JSON matching this schema EXACTLY:',
+    '{ "summary": "string", "strengths": ["string"], "concerns": ["string"], "recommendation": "string", "confidence": number }',
+    'Candidate Info:',
+    `Name: ${candidate.name}`,
+    `Email: ${candidate.email}`,
+    `Skills: ${(candidate.skills || []).join(', ')}`,
+    `Education: ${(candidate.education || []).join(', ')}`,
+    `Experience: ${candidate.experience}`,
     jobDescription ? `Target job description: ${jobDescription}` : '',
+    'Resume Text snippet:',
+    resumeText.substring(0, 15000), // pass a large snippet
   ]
     .filter(Boolean)
     .join('\n');
 
-  const response = await fetch('https://api.openai.com/v1/responses', {
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -88,44 +85,31 @@ const getOpenAIAnalysis = async ({ candidate, jobDescription }) => {
     },
     body: JSON.stringify({
       model,
-      input: prompt,
-      response_format: {
-        type: 'json_schema',
-        json_schema: {
-          name: 'candidate_analysis',
-          schema: {
-            type: 'object',
-            additionalProperties: false,
-            properties: {
-              summary: { type: 'string' },
-              strengths: { type: 'array', items: { type: 'string' } },
-              concerns: { type: 'array', items: { type: 'string' } },
-              recommendation: { type: 'string' },
-              confidence: { type: 'number' },
-            },
-            required: ['summary', 'strengths', 'concerns', 'recommendation', 'confidence'],
-          },
-        },
-      },
+      messages: [
+        { role: 'system', content: 'You are an AI recruiting assistant. You always reply with valid JSON.' },
+        { role: 'user', content: prompt }
+      ],
+      response_format: { type: 'json_object' },
+      temperature: 0.1,
     }),
   });
 
   if (!response.ok) {
     const errorBody = await response.text();
-    throw new Error(`OpenAI analysis failed: ${errorBody}`);
+    throw new Error(`Groq analysis failed: ${errorBody}`);
   }
 
   const body = await response.json();
-  const outputText = body.output_text;
+  const outputText = body.choices[0].message.content;
 
   if (!outputText) {
-    throw new Error('OpenAI analysis returned empty output');
+    throw new Error('Groq analysis returned empty output');
   }
 
   const parsed = JSON.parse(outputText);
 
   return {
-    summary: parsed.summary || '',
+    summary: parsed.summary || 'Summary not available',
     strengths: Array.isArray(parsed.strengths) ? parsed.strengths : [],
     concerns: Array.isArray(parsed.concerns) ? parsed.concerns : [],
     recommendation: parsed.recommendation || '',
@@ -136,7 +120,7 @@ const getOpenAIAnalysis = async ({ candidate, jobDescription }) => {
 
 const generateCandidateAnalysis = async ({ candidate, jobDescription, resumeText = '' }) => {
   try {
-    const aiResult = await getOpenAIAnalysis({ candidate, jobDescription });
+    const aiResult = await getGroqAnalysis({ candidate, jobDescription, resumeText });
 
     if (aiResult) {
       return aiResult;

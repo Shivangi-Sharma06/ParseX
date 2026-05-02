@@ -1,5 +1,6 @@
 const express = require('express');
 const {
+  createCandidate,
   uploadResume,
   getCandidates,
   getCandidateProfile,
@@ -7,13 +8,14 @@ const {
   getResumeFile,
   deleteCandidate,
 } = require('../controllers/candidateController');
-const authMiddleware = require('../middleware/auth');
+const authMiddleware = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
 const { idParam, runValidation } = require('../middleware/validators');
 
 const router = express.Router();
 
 router.use(authMiddleware);
+router.post('/create', createCandidate);
 router.post('/upload', upload.single('resume'), uploadResume);
 router.get('/', getCandidates);
 router.get('/:candidateId', idParam('candidateId'), runValidation, getCandidateProfile);

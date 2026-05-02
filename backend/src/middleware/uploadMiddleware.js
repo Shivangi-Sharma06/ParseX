@@ -19,24 +19,10 @@ const storage = multer.diskStorage({
   },
 });
 
-const allowedMimeTypes = [
-  'application/pdf',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-];
-
-const fileFilter = (_req, file, cb) => {
-  if (allowedMimeTypes.includes(file.mimetype)) {
-    return cb(null, true);
-  }
-
-  return cb(new Error('Only PDF and DOCX files are allowed'));
-};
-
 const upload = multer({
   storage,
-  fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024,
+    fileSize: 100 * 1024 * 1024, // 100MB limit
   },
 });
 

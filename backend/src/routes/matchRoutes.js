@@ -6,7 +6,7 @@ const {
   sendShortlistEmailForMatch,
   emailAllShortlistedForJob,
 } = require('../controllers/matchController');
-const authMiddleware = require('../middleware/auth');
+const authMiddleware = require('../middleware/authMiddleware');
 const { idParam, shortlistValidation, runValidation } = require('../middleware/validators');
 
 const router = express.Router();

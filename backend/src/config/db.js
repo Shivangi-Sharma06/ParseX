@@ -18,4 +18,6 @@ const getDbStatus = () => {
   return states[mongoose.connection.readyState] || 'unknown';
 };
 
-module.exports = { connectDB, getDbStatus };
+const isDbConnected = () => getDbStatus() === 'connected';
+
+module.exports = { connectDB, getDbStatus, isDbConnected };

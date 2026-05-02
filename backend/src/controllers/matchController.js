@@ -3,6 +3,13 @@ const Job = require('../models/Job');
 const Match = require('../models/Match');
 const { calculateMatch } = require('../services/matchingService');
 const { sendShortlistEmail } = require('../services/emailService');
+const { isDbConnected } = require('../config/db');
+const {
+  runMatchesForJob: runDemoMatchesForJob,
+  getMatchesForJob: getDemoMatchesForJob,
+  updateShortlist: updateDemoShortlist,
+  markEmailSent: markDemoEmailSent,
+} = require('../utils/demoStore');
 
 const getUserId = (req) => req.user?.id || req.user?._id;
 
@@ -19,18 +26,38 @@ const toResultItem = ({ matchDoc, candidate, job }) => ({
 
 const runMatchForJob = async (req, res) => {
   try {
+    if (!isDbConnected()) {
+      const response = runDemoMatchesForJob(getUserId(req), req.params.jobId);
+      if (!response) {
+        return res.status(404).json({ message: 'Job not found' });
+      }
+      return res.json({
+        job: response.job,
+        count: response.results.length,
+        results: response.results,
+        mode: 'demo',
+      });
+    }
+
     const job = await Job.findOne({ _id: req.params.jobId, createdBy: getUserId(req) });
 
     if (!job) {
       return res.status(404).json({ message: 'Job not found' });
     }
 
-    const candidates = await Candidate.find({ recruiter: getUserId(req) });
+    const candidates = await Candidate.find({ recruiter: getUserId(req) }).select('-resumeText');
+
+    if (!candidates.length) {
+      return res.json({
+        job,
+        count: 0,
+        results: [],
+      });
+    }
 
     const matchResults = await Promise.all(
       candidates.map(async (candidate) => {
         const { score, matchedSkills } = calculateMatch(candidate.skills, job.requiredSkills);
-
         const matchDoc = await Match.findOneAndUpdate(
           {
             candidateId: candidate._id,
@@ -67,13 +94,28 @@ const runMatchForJob = async (req, res) => {
 
 const getMatchesForJob = async (req, res) => {
   try {
+    if (!isDbConnected()) {
+      const response = getDemoMatchesForJob(getUserId(req), req.params.jobId);
+      if (!response) {
+        return res.status(404).json({ message: 'Job not found' });
+      }
+      return res.json({
+        job: response.job,
+        count: response.results.length,
+        results: response.results,
+        mode: 'demo',
+      });
+    }
+
     const job = await Job.findOne({ _id: req.params.jobId, createdBy: getUserId(req) });
 
     if (!job) {
       return res.status(404).json({ message: 'Job not found' });
     }
 
-    const matches = await Match.find({ jobId: job._id }).populate('candidateId').sort({ matchScore: -1 });
+    const matches = await Match.find({ jobId: job._id })
+      .populate('candidateId', '-resumeText')
+      .sort({ matchScore: -1 });
 
     const results = matches.map((match) =>
       toResultItem({
@@ -97,6 +139,18 @@ const shortlistCandidate = async (req, res) => {
   try {
     const shouldShortlist =
       typeof req.body?.shortlisted === 'boolean' ? req.body.shortlisted : true;
+
+    if (!isDbConnected()) {
+      const match = updateDemoShortlist(getUserId(req), req.params.matchId, shouldShortlist);
+      if (!match) {
+        return res.status(404).json({ message: 'Match not found' });
+      }
+      return res.json({
+        message: shouldShortlist ? 'Candidate shortlisted' : 'Candidate removed from shortlist',
+        match,
+        mode: 'demo',
+      });
+    }
 
     const match = await Match.findById(req.params.matchId).populate('candidateId').populate('jobId');
 
@@ -149,6 +203,18 @@ const shortlistCandidate = async (req, res) => {
 
 const sendShortlistEmailForMatch = async (req, res) => {
   try {
+    if (!isDbConnected()) {
+      const match = markDemoEmailSent(getUserId(req), req.params.matchId);
+      if (!match) {
+        return res.status(404).json({ message: 'Match not found' });
+      }
+      return res.json({
+        message: 'Shortlist email sent successfully',
+        match,
+        mode: 'demo',
+      });
+    }
+
     const match = await Match.findById(req.params.matchId).populate('candidateId').populate('jobId');
 
     if (!match) {
@@ -183,6 +249,30 @@ const sendShortlistEmailForMatch = async (req, res) => {
 
 const emailAllShortlistedForJob = async (req, res) => {
   try {
+    if (!isDbConnected()) {
+      const response = getDemoMatchesForJob(getUserId(req), req.params.jobId);
+      if (!response) {
+        return res.status(404).json({ message: 'Job not found' });
+      }
+
+      const shortlisted = response.results.filter((item) => item.shortlisted);
+      if (!shortlisted.length) {
+        return res.status(400).json({ message: 'No shortlisted candidates found for this job' });
+      }
+
+      shortlisted.forEach((item) => {
+        markDemoEmailSent(getUserId(req), item._id);
+      });
+
+      return res.json({
+        message: 'Bulk shortlist email process completed',
+        sentCount: shortlisted.length,
+        failedCount: 0,
+        total: shortlisted.length,
+        mode: 'demo',
+      });
+    }
+
     const job = await Job.findOne({ _id: req.params.jobId, createdBy: getUserId(req) });
 
     if (!job) {
